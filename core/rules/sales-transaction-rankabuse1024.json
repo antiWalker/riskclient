@@ -1,0 +1,125 @@
+{
+  "sign": "sales-transaction-rankabuse1024",
+  "condition": {
+    "type": "logic",
+    "value": "and",
+    "children": [
+      {
+        "type":"operator",
+        "value":"!=",
+        "children":[
+          {
+            "type":"field",
+            "value":"order_ip"
+          },
+          {
+            "type":"string",
+            "value":""
+          }
+        ]
+      },
+      {
+        "type":"operator",
+        "value":"!=",
+        "children":[
+          {
+            "type":"field",
+            "value":"pay_account"
+          },
+          {
+            "type":"string",
+            "value":""
+          }
+        ]
+      },
+      {
+        "type":"operator",
+        "value":">",
+        "children":[
+          {
+            "type":"field",
+            "value":"ota_id"
+          },
+          {
+            "type":"number",
+            "value":0
+          }
+        ]
+      },
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "field",
+            "value": "flag_payment"
+          },
+          {
+            "type": "string",
+            "value": "已支付"
+          }
+        ]
+      }
+    ]
+  },
+  "match": {
+    "type": "logic",
+    "value": "and",
+    "children": [
+      {
+        "type":"operator",
+        "value":"==",
+        "children":[
+          {
+            "type":"number",
+            "value":0
+          },
+          {
+            "type":"number",
+            "value":0
+          }
+        ]
+      },
+      {
+        "type": "operator",
+        "value": ">=",
+        "children": [
+          {
+            "type": "query",
+            "value": "mysql",
+            "children": [
+              {
+                "type": "select",
+                "value": "t_risk_engine_sales_order|sum::goods_num"
+              },
+              {
+                "type": "where",
+                "value": "order_ip|eq|$order_ip"
+              },
+              {
+                "type": "where",
+                "value": "ota_id|eq|$ota_id"
+              },
+              {
+                "type": "where",
+                "value": "pay_account|eq|$pay_account"
+              },
+              {
+                "type": "where",
+                "value": "flag_payment|eq|已支付"
+              },
+              {
+                "type": "where",
+                "value": "order_time|gt|T168"
+              }
+            ]
+          },
+          {
+            "type": "number",
+            "value": 10
+          }
+        ]
+      }
+    ]
+  }
+}

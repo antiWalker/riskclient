@@ -1,0 +1,107 @@
+{
+  "sign": "sales-transaction-rankabuse1027",
+  "condition": {
+    "type": "logic",
+    "value": "and",
+    "children": [
+      {
+        "type":"operator",
+        "value":"!=",
+        "children":[
+          {
+            "type":"field",
+            "value":"email"
+          },
+          {
+            "type":"string",
+            "value":""
+          }
+        ]
+      },
+      {
+        "type":"operator",
+        "value":">",
+        "children":[
+          {
+            "type":"field",
+            "value":"sales_id"
+          },
+          {
+            "type":"number",
+            "value":0
+          }
+        ]
+      },
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "field",
+            "value": "flag_payment"
+          },
+          {
+            "type": "string",
+            "value": "已支付"
+          }
+        ]
+      }
+    ]
+  },
+  "match": {
+    "type": "logic",
+    "value": "and",
+    "children": [
+      {
+        "type":"operator",
+        "value":"==",
+        "children":[
+          {
+            "type":"number",
+            "value":0
+          },
+          {
+            "type":"number",
+            "value":0
+          }
+        ]
+      },
+      {
+        "type": "operator",
+        "value": ">=",
+        "children": [
+          {
+            "type": "query",
+            "value": "mysql",
+            "children": [
+              {
+                "type": "select",
+                "value": "t_risk_engine_sales_order|count::order_id"
+              },
+              {
+                "type": "where",
+                "value": "email|eq|$email"
+              },
+              {
+                "type": "where",
+                "value": "flag_payment|eq|已支付"
+              },
+              {
+                "type": "where",
+                "value": "sales_id|eq|$sales_id"
+              },
+              {
+                "type": "where",
+                "value": "order_time|gt|T168"
+              }
+            ]
+          },
+          {
+            "type": "integer",
+            "value": 5
+          }
+        ]
+      }
+    ]
+  }
+}

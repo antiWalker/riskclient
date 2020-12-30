@@ -1,0 +1,86 @@
+{
+    "match": {
+        "type": "logic",
+        "value": "and",
+        "children": [
+        {
+            "type": "logic",
+            "value": "or",
+            "children":[
+            {
+                "type": "operator",
+                "value": ">=",
+                "children": [
+                {
+                    "type": "query",
+                    "value": "mysql",
+                    "children": [
+                    {
+                        "type": "select",
+                        "value": "t_risk_engine_sales_order|count::id"
+                    },
+                    {
+                        "type": "where",
+                        "value": "uid|eq|$UID"
+                    },
+                    {
+                        "type": "where",
+                        "value": "order_status|eq|未支付"
+                    },
+                    {
+                        "type": "where",
+                        "value": "business_type|eq|门票"
+                    },
+                    {
+                        "type": "where",
+                        "value": "order_time|gt|T24"
+                    }
+                    ]
+                },
+                {
+                    "type": "integer",
+                    "value": 3
+                }
+                ]
+            },
+            {
+                "type": "operator",
+                "value": ">=",
+                "children": [
+                {
+                    "type": "query",
+                    "value": "mysql",
+                    "children": [
+                    {
+                        "type": "select",
+                        "value": "t_risk_engine_sales_order|sum::goods_num"
+                    },
+                    {
+                        "type": "where",
+                        "value": "uid|eq|$UID"
+                    },
+                    {
+                        "type": "where",
+                        "value": "order_status|eq|未支付"
+                    },
+                    {
+                        "type": "where",
+                        "value": "business_type|eq|门票"
+                    },
+                    {
+                        "type": "where",
+                        "value": "order_time|gt|T24"
+                    }
+                    ]
+                },
+                {
+                    "type": "number",
+                    "value": 5
+                }
+                ]
+            }
+            ]
+        }
+        ]
+    }
+}

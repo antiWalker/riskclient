@@ -1,0 +1,352 @@
+[{
+  "match": {
+    "type": "logic",
+    "value": "and",
+    "children": [
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "field",
+            "value": "OtaID"
+          },
+          {
+            "type": "string",
+            "value": "2"
+          }
+        ]
+      },
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "field",
+            "value": "Phone"
+          },
+          {
+            "type": "string",
+            "value": "18811217848"
+          }
+        ]
+      }
+    ]
+  }
+},{
+  "match": {
+    "type": "logic",
+    "value": "and",
+    "children": [
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "field",
+            "value": "OtaID"
+          },
+          {
+            "type": "string",
+            "value": "2"
+          }
+        ]
+      },
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "field",
+            "value": "Phone"
+          },
+          {
+            "type": "string",
+            "value": "18811217848"
+          }
+        ]
+      }
+    ]
+  }
+},{
+  "match": {
+    "type": "logic",
+    "value": "and",
+    "children": [
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "field",
+            "value": "OtaID"
+          },
+          {
+            "type": "string",
+            "value": "2"
+          }
+        ]
+      },
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "field",
+            "value": "Phone"
+          },
+          {
+            "type": "string",
+            "value": "18811217848"
+          }
+        ]
+      }
+    ]
+  }
+},{
+  "match": {
+    "type": "logic",
+    "value": "and",
+    "children": [
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "field",
+            "value": "OtaID"
+          },
+          {
+            "type": "string",
+            "value": "2"
+          }
+        ]
+      },
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "field",
+            "value": "Phone"
+          },
+          {
+            "type": "string",
+            "value": "18811217848"
+          }
+        ]
+      }
+    ]
+  }
+},{
+  "match": {
+    "type": "logic",
+    "value": "and",
+    "children": [
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "field",
+            "value": "OtaID"
+          },
+          {
+            "type": "string",
+            "value": "2"
+          }
+        ]
+      },
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "field",
+            "value": "Phone"
+          },
+          {
+            "type": "string",
+            "value": "18811217848"
+          }
+        ]
+      }
+    ]
+  }
+},{
+  "match": {
+    "type": "logic",
+    "value": "and",
+    "children": [
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "field",
+            "value": "OtaID"
+          },
+          {
+            "type": "string",
+            "value": "2"
+          }
+        ]
+      },
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "field",
+            "value": "Phone"
+          },
+          {
+            "type": "string",
+            "value": "18811217848"
+          }
+        ]
+      }
+    ]
+  }
+},{
+  "match": {
+    "type": "logic",
+    "value": "and",
+    "children": [
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "field",
+            "value": "OtaID"
+          },
+          {
+            "type": "string",
+            "value": "2"
+          }
+        ]
+      },
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "field",
+            "value": "Phone"
+          },
+          {
+            "type": "string",
+            "value": "18811217848"
+          }
+        ]
+      }
+    ]
+  }
+},{
+  "match": {
+    "type": "logic",
+    "value": "and",
+    "children": [
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "field",
+            "value": "OtaID"
+          },
+          {
+            "type": "string",
+            "value": "2"
+          }
+        ]
+      },
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "field",
+            "value": "Phone"
+          },
+          {
+            "type": "string",
+            "value": "18811217848"
+          }
+        ]
+      }
+    ]
+  }
+},{
+  "match": {
+    "type": "logic",
+    "value": "and",
+    "children": [
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "field",
+            "value": "OtaID"
+          },
+          {
+            "type": "string",
+            "value": "2"
+          }
+        ]
+      },
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "field",
+            "value": "Phone"
+          },
+          {
+            "type": "string",
+            "value": "18811217848"
+          }
+        ]
+      }
+    ]
+  }
+},{
+  "match": {
+    "type": "logic",
+    "value": "and",
+    "children": [
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "field",
+            "value": "OtaID"
+          },
+          {
+            "type": "string",
+            "value": "2"
+          }
+        ]
+      },
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "field",
+            "value": "Phone"
+          },
+          {
+            "type": "string",
+            "value": "18811217848"
+          }
+        ]
+      }
+    ]
+  }
+}
+]

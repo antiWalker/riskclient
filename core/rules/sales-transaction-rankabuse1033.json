@@ -1,0 +1,65 @@
+{
+    "sign": "sales-transaction-rankabuse1033",
+    "match": {
+      "type": "logic",
+      "value": "and",
+      "children": [
+        {
+          "type":"operator",
+          "value":"!=",
+          "children":[
+            {
+              "type":"field",
+              "value":"OpenUdid"
+            },
+            {
+              "type":"string",
+              "value":""
+            }
+          ]
+        },
+        {
+          "type": "operator",
+          "value": "==",
+          "children": [
+            {
+              "type": "field",
+              "value": "FlagPayment"
+            },
+            {
+              "type": "string",
+              "value": "已支付"
+            }
+          ]
+        },
+        {
+          "type": "operator",
+          "value": ">=",
+          "children": [
+            {
+              "type": "query",
+              "value": "mysql",
+              "children": [
+              {
+                  "type": "select",
+                  "value": "t_risk_engine_sales_order|count::order_id"
+              },
+              {
+                  "type": "where",
+                  "value": "open_udid|eq|$OpenUdid"
+              },
+              {
+                "type": "where",
+                "value": "flag_payment|eq|已支付"
+              }
+              ]
+            },
+            {
+              "type": "integer",
+              "value": 50
+            }
+          ]
+        }
+      ]
+    }
+}

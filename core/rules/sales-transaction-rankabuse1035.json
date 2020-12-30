@@ -1,0 +1,47 @@
+{
+    "sign": "sales-transaction-rankabuse1035",
+    "match": {
+      "type": "logic",
+      "value": "and",
+      "children": [
+        {
+          "type": "operator",
+          "value": "==",
+          "children": [
+            {
+              "type": "field",
+              "value": "zhan"
+            },
+            {
+              "type": "string",
+              "value": "45"
+            }
+          ]
+        },
+        {
+          "type": "operator",
+          "value": ">=",
+          "children": [
+            {
+              "type": "operator",
+              "value": "/",
+              "children": [
+                  {
+                    "type": "field",
+                    "value": "ota_total_reduce"
+                  },
+                  {
+                    "type": "field",
+                    "value": "order_price"
+                  }
+              ]
+            },
+            {
+              "type": "number",
+              "value": 0.5
+            }
+          ]
+        }
+      ]
+    }
+}

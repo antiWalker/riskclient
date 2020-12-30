@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-04/shcema#",
+  "name": "MFWRiskEngine",
+  "type": "object",
+  "required": [
+    "match",
+    "exception"
+  ],
+  "properties": {
+    "match": {
+      "type": "object",
+      "additionalProperties": {
+        "type": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string|integer"
+        },
+        "children": {
+          "type": "array"
+        }
+      }
+    },
+    "exception": {
+      "type": "object|null",
+      "additionalProperties": {
+        "type": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string|integer"
+        },
+        "children": {
+          "type": "array"
+        }
+      }
+    }
+  }
+}

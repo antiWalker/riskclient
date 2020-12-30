@@ -1,0 +1,51 @@
+{
+    "sign": "sales-payment-antifraud1002",
+    "match": {
+      "type": "logic",
+      "value": "and",
+      "children": [
+        {
+          "type": "operator",
+          "value": "==",
+          "children": [
+            {
+              "type": "field",
+              "value": "BusinessType"
+            },
+            {
+              "type": "string",
+              "value": "门票"
+            }
+          ]
+        },
+        {
+          "type": "operator",
+          "value": ">",
+          "children": [
+            {
+              "type": "query",
+              "value": "mysql",
+              "children": [
+                {
+                  "type": "select",
+                  "value": "t_risk_engine_sales_order|sum::goods_num"
+                },
+                {
+                  "type": "where",
+                  "value": "sales_id|eq|$SalesID"
+                },
+                {
+                  "type": "where",
+                  "value": "order_channel|neq|app"
+                }
+              ]
+            },
+            {
+              "type": "number",
+              "value": 2
+            }
+          ]
+        }
+      ]
+    }
+}

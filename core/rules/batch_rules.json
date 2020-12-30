@@ -1,0 +1,113 @@
+{
+    "rules": [{
+        "match": {
+            "type": "logic",
+            "value": "and",
+            "children": [
+            {
+                "type": "operator",
+                "value": "==",
+                "children": [
+                {
+                    "type": "integer",
+                    "value": 1
+                },
+    
+                {
+                    "type": "integer",
+                    "value": 1
+                }
+                ]
+            },
+            {
+                "type": "operator",
+                "value": ">=",
+                "children": [
+                {
+                    "type": "query",
+                    "value": "mysql",
+                    "children": [
+                    {
+                        "type": "select",
+                        "value": "t_risk_engine_sales_order|count::id"
+                    },
+                    {
+                        "type": "where",
+                        "value": "open_udid|eq|$OpenUdid"
+                    },
+                    {
+                        "type": "where",
+                        "value": "ota_id|eq|$OtaID"
+                    },
+                    {
+                        "type": "where",
+                        "value": "order_time|gt|T24"
+                    }
+                    ]
+                },
+                {
+                    "type": "integer",
+                    "value": 20
+                }
+                ]
+            }
+            ]
+        }
+    },
+    {
+        "match": {
+            "type": "logic",
+            "value": "and",
+            "children": [
+            {
+                "type": "operator",
+                "value": "==",
+                "children": [
+                {
+                    "type": "integer",
+                    "value": 1
+                },
+    
+                {
+                    "type": "integer",
+                    "value": 1
+                }
+                ]
+            },
+            {
+                "type": "operator",
+                "value": ">=",
+                "children": [
+                {
+                    "type": "query",
+                    "value": "mysql",
+                    "children": [
+                    {
+                        "type": "select",
+                        "value": "t_risk_engine_sales_order|count::id"
+                    },
+                    {
+                        "type": "where",
+                        "value": "open_udid|eq|$OpenUdid"
+                    },
+                    {
+                        "type": "where",
+                        "value": "ota_id|eq|$OtaID"
+                    },
+                    {
+                        "type": "where",
+                        "value": "order_time|gt|T24"
+                    }
+                    ]
+                },
+                {
+                    "type": "integer",
+                    "value": 20
+                }
+                ]
+            }
+            ]
+        }
+    }
+    ]
+}

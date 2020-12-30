@@ -1,0 +1,162 @@
+{
+    "match": {
+        "type": "logic",
+        "value": "and",
+        "children": [
+        {
+            "type": "logic",
+            "value": "or",
+            "children":[
+            {
+                "type": "operator",
+                "value": ">=",
+                "children": [
+                {
+                    "type": "query",
+                    "value": "mysql",
+                    "children": [
+                    {
+                        "type": "select",
+                        "value": "t_risk_engine_sales_order|count::id"
+                    },
+                    {
+                        "type": "where",
+                        "value": "phone|eq|$Phone"
+                    },
+                    {
+                        "type": "where",
+                        "value": "order_time|gt|T24"
+                    }
+                    ]
+                },
+                {
+                    "type": "integer",
+                    "value": 3
+                }
+                ]
+            },
+            {
+                "type": "operator",
+                "value": ">=",
+                "children": [
+                {
+                    "type": "query",
+                    "value": "mysql",
+                    "children": [
+                    {
+                        "type": "select",
+                        "value": "t_risk_engine_sales_order|sum::goods_num"
+                    },
+                    {
+                        "type": "where",
+                        "value": "phone|eq|$Phone"
+                    },
+                    {
+                        "type": "where",
+                        "value": "order_time|gt|T24"
+                    }
+                    ]
+                },
+                {
+                    "type": "number",
+                    "value": 10
+                }
+                ]
+            }
+            ]
+        },
+        {
+            "type": "operator",
+            "value": ">=",
+            "children": [
+                {
+                    "type": "operator",
+                    "value": "/",
+                    "children":[
+                        {
+                            "type": "query",
+                            "value": "mysql",
+                            "children": [
+                            {
+                                "type": "select",
+                                "value": "t_risk_engine_sales_order|count::id"
+                            },
+                            {
+                                "type": "where",
+                                "value": "phone|eq|$Phone"
+                            },
+                            {
+                                "type": "where",
+                                "value": "order_status|eq|未支付"
+                            },
+                            {
+                                "type": "where",
+                                "value": "order_time|gt|T24"
+                            }
+                            ]
+                        },
+                        {
+                            "type": "query",
+                            "value": "mysql",
+                            "children": [
+                            {
+                                "type": "select",
+                                "value": "t_risk_engine_sales_order|count::id"
+                            },
+                            {
+                                "type": "where",
+                                "value": "phone|eq|$Phone"
+                            },
+                            {
+                                "type": "where",
+                                "value": "order_time|gt|T24"
+                            }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "number",
+                    "value": 0.25
+                }
+            ]
+        },
+        {
+            "type": "operator",
+            "value": ">=",
+            "children": [
+            {
+                "type": "query",
+                "value": "mysql",
+                "children": [
+                {
+                    "type": "select",
+                    "value": "t_risk_engine_sales_order|count::id"
+                },
+                {
+                    "type": "where",
+                    "value": "phone|eq|$Phone"
+                },
+                {
+                    "type": "where",
+                    "value": "pay_channel|eq|alipay"
+                },
+                {
+                    "type": "where",
+                    "value": "pay_account|neq|"
+                },
+                {
+                    "type": "where",
+                    "value": "order_time|gt|T24"
+                }
+                ]
+            },
+            {
+                "type": "integer",
+                "value": 2
+            }
+            ]
+        }
+        ]
+    }
+}
