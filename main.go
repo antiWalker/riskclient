@@ -63,6 +63,7 @@ func main() {
 		fmt.Println(hit.ErrMsg)
 	}
 }
+//如果一个订单过多条策略，则可以把这个订单下多个命中的策略批量insert。
 func insertToDb(HitList []handlers.StrategyResult,SubOrderId int64,UserId int64)()  {
 	for k, v := range HitList {
 		//fmt.Println(k, v)
