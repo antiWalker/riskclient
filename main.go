@@ -50,22 +50,28 @@ func main() {
 		HRes :=hit.Data.(*handlers.HitResult)
 		IsHit := HRes.IsHit
 		HitList := HRes.StrategyList
+		//命中后再做log到db的操作。
 		if IsHit == true {
 			fmt.Println("{SubOrderId is : "+raw.SubOrderId)
 			fmt.Println("{UserId     is : "+raw.UserId)
-			for k, v := range HitList {
-				//fmt.Println(k, v)
-				ruleRes := v.IsHit
-				fmt.Println(k, ruleRes)
-				//把命中的策略结果insert到polardb
-				if ruleRes {
-					//todo imp
-					//fmt.Println(ruleRes)
-				}
-			}
+			SubOrderId,_ := raw.SubOrderId.Int64()
+			UserId ,_    := raw.UserId.Int64()
+			insertToDb(HitList,SubOrderId,UserId)
 		}
 	}else{
 		//解析出错钉钉群报警
 		fmt.Println(hit.ErrMsg)
+	}
+}
+func insertToDb(HitList []handlers.StrategyResult,SubOrderId int64,UserId int64)()  {
+	for k, v := range HitList {
+		//fmt.Println(k, v)
+		ruleRes := v.IsHit
+		fmt.Println(k, ruleRes)
+		//把命中的策略结果insert到polardb
+		if ruleRes {
+			//todo imp
+			//fmt.Println(ruleRes)
+		}
 	}
 }
