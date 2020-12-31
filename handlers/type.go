@@ -8,7 +8,8 @@ type (
 const (
 	errnoSuccess  errnoType = 0
 	errnoFailure  errnoType = 1
-	errnoParseArg errnoType = 2
+	errnoParseParamArg errnoType = 2
+	errnoParseRulesArg errnoType = 3
 
 	errnoInvalidOp errnoType = 100
 
@@ -22,7 +23,8 @@ const (
 var errnoMsg = map[errnoType]errMsgType{
 	errnoSuccess:  errMsgType("成功"),
 	errnoFailure:  errMsgType("失败"),
-	errnoParseArg: errMsgType("解析 HTTP 参数失败"),
+	errnoParseParamArg: errMsgType("解析 params 参数失败"),
+	errnoParseRulesArg: errMsgType("解析 rules 参数失败"),
 
 	errnoInvalidOp: errMsgType("无效的 op 参数"),
 

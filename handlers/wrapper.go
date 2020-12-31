@@ -71,7 +71,7 @@ func Wrapper(args interface{}, handler wrapperHandler) func(w http.ResponseWrite
 
 		// do love lambda if we have
 		if err := doChain(r.ParseForm, p); err != nil {
-			_ = sendResult(errnoParseArg, nil)
+			_ = sendResult(errnoParseParamArg, nil)
 			return
 		}
 		TraceId := r.Header.Get("TRACE_ID")
