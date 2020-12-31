@@ -23,18 +23,24 @@ func main() {
 		OrderId json.Number `json:"orderId"`
 		SubOrderId json.Number `json:"subOrderId"`
 		UserId json.Number `json:"userId"`
+		SiteId json.Number `json:"siteId"`
 	}
 	// 从kafka取params然后从redis去取rules。然后调用风控引擎模块。
 	var params string
 	var rules string
 	//从kafka获取的order data
-	params = "{\n\t\"businessAreaId\": 671,\n\t\"couponMoney\": 0,\n\t\"grouponId\": 98383,\n\t\"isNewOrder\": 0,\n\t\"mainSiteCityId\": 107,\n\t\"mainSiteCityName\": \"沈阳市\",\n\t\"mainSiteId\": 10386,\n\t\"mainSiteName\": \"沈阳市\",\n\t\"merchandiseAbbr\": \"正大 熘肉段\",\n\t\"merchandiseId\": 1112,\n\t\"merchandiseName\": \"正大 熘肉段320g\",\n\t\"merchandisePrice\": 690,\n\t\"orderId\": 450336553706083850,\n\t\"orderStatus\": 5,\n\t\"partnerId\": 271674,\n\t\"price\": 60,\n\t\"quantity\": 1,\n\t\"rebateAmount\": 69,\n\t\"siteCityId\": 107,\n\t\"siteCityName\": \"沈阳市\",\n\t\"siteId\": 10387,\n\t\"siteName\": \"沈阳市（子站）\",\n\t\"subOrderId\": 450336553706083851,\n\t\"supplyPrice\": 1523,\n\t\"ts\": 1608885401000,\n\t\"tss\": \"2020-12-25 16:36:41\",\n\t\"userId\": 118979605,\n\t\"warehouseId\": 990\n}"
-	//从redis获取的规则
-	key := "RISK_FUMAOLI_SCENE_10030"
+	params = "{\n\t\"businessAreaId\": 671,\n\t\"couponMoney\": 0,\n\t\"grouponId\": 98383,\n\t\"isNewOrder\": 0,\n\t\"mainSiteCityId\": 107,\n\t\"mainSiteCityName\": \"沈阳市\",\n\t\"mainSiteId\": 10386,\n\t\"mainSiteName\": \"沈阳市\",\n\t\"merchandiseAbbr\": \"正大 熘肉段\",\n\t\"merchandiseId\": 1112,\n\t\"merchandiseName\": \"正大 熘肉段320g\",\n\t\"merchandisePrice\": 690,\n\t\"orderId\": 450336553706083850,\n\t\"orderStatus\": 5,\n\t\"partnerId\": 271674,\n\t\"price\": 60,\n\t\"quantity\": 1,\n\t\"rebateAmount\": 69,\n\t\"siteCityId\": 107,\n\t\"siteCityName\": \"沈阳市\",\n\t\"siteId\": 10030,\n\t\"siteName\": \"沈阳市（子站）\",\n\t\"subOrderId\": 450336553706083851,\n\t\"supplyPrice\": 1523,\n\t\"ts\": 1608885401000,\n\t\"tss\": \"2020-12-25 16:36:41\",\n\t\"userId\": 118979605,\n\t\"warehouseId\": 990\n}"
+	var raw = new(OrderInfo)
+	if err := json.Unmarshal([]byte(params), &raw); err != nil {
+		fmt.Println(err)
+	}
+	SiteId := raw.SiteId
+	//通过子站id拼成子站场景key，然后拿着key从redis获取这个场景要过的的规则集合
+	key := "RISK_FUMAOLI_SCENE_"+string(SiteId)
 	rules = common.RedisGet(key)
 	fmt.Println(rules)
 	if rules ==""{
-		fmt.Println("redis里面缓存的规则为空")
+		fmt.Println("redis里面缓存的规则不能为空")
 		return
 	}
 	hit,_:=handlers.DetectHandler(params,rules)
@@ -45,10 +51,6 @@ func main() {
 		IsHit := HRes.IsHit
 		HitList := HRes.StrategyList
 		if IsHit == true {
-			var raw = new(OrderInfo)
-			if err := json.Unmarshal([]byte(params), &raw); err != nil {
-				fmt.Println(err)
-			}
 			fmt.Println("{SubOrderId is : "+raw.SubOrderId)
 			fmt.Println("{UserId     is : "+raw.UserId)
 			for k, v := range HitList {

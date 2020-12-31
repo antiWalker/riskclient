@@ -2,20 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="835fd3a1-505c-4524-a1ae-7bc1526162fe" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/common/go.mod" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/redis.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/conf/database.conf" beforeDir="false" afterPath="$PROJECT_DIR$/conf/database.conf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/eval.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/eval.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/node.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/node.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handlers/detect.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/detect.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handlers/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handlers/type.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/type.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handlers/wrapper.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/wrapper.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/riskengine" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
