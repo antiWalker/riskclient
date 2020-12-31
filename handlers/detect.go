@@ -80,14 +80,21 @@ func DetectHandler(params string,rules string) (resultType,error) {
 
 	wg := sync.WaitGroup{}
 	wg.Add(len(ruleList))
-
-	for _, value := range keyValues {
+	for kk, value := range keyValues {
 		var ruleBytes []byte
 		ruleData,ok := value.(string)
 		if ok {
 			ruleBytes = []byte(ruleData)
 		}else {
 			//return makeResult(errnoEmptyRule, nil),nil
+			//return "", haveRisk, reason, errors.New("riskEngine: "+kk+"rule is empty")
+			type rule struct {
+				Ruleindex int `json:"ruleindex"`
+			}
+			log.Error("rule is empty ",&rule{
+				Ruleindex:kk,
+			})
+			return makeResult(errnoEmptyRule,nil),nil
 		}
 		go func(ruleBytes []byte) {
 			defer func() {
@@ -136,8 +143,10 @@ func DetectHandler(params string,rules string) (resultType,error) {
 
 	for value := range detectChannel {
 		if value.errorInfo != nil {
+			//fmt.Println(value.errorInfo)
 			//_ = sendResult(w, errnoDetectFailed, value.errorInfo.Error())
 			//return false,value.errorInfo
+			return makeResult(errnoInvalidDetectParams,nil),nil
 		}
 		tmpStrategyResult := new(StrategyResult)
 		tmpStrategyResult.Name = value.ruleSign
