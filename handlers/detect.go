@@ -63,7 +63,6 @@ func DetectHandler(params string,rules string) (resultType,error) {
 	if err := json.Unmarshal([]byte(rules), &ruleList); err != nil {
 		return makeResult(errnoParseRulesArg,nil),nil
 	}
-	//fmt.Println(ruleList)
 	//解析数组，从redis里面去
 	var listKey []string
 	for _, value := range ruleList{
@@ -73,11 +72,10 @@ func DetectHandler(params string,rules string) (resultType,error) {
 	}
 
 	keyValues,_ :=common.RedisMGet(listKey)
-	if len(ruleList) == 0 {
-		//return false,errors.New("ruleList is empty")
-		fmt.Println(776)
-	}
 
+	if len(ruleList) == 0 {
+		return makeResult(errnoEmptyRule,nil),nil
+	}
 	detectChannel := make(chan DetectChannel, len(ruleList))
 
 	wg := sync.WaitGroup{}
@@ -86,18 +84,12 @@ func DetectHandler(params string,rules string) (resultType,error) {
 	for _, value := range keyValues {
 		var ruleBytes []byte
 		ruleData,ok := value.(string)
-		//fmt.Println(value)
 		if ok {
 			ruleBytes = []byte(ruleData)
 		}else {
-			//return false,errors.New("ruleData is not string")
+			//return makeResult(errnoEmptyRule, nil),nil
 		}
-		//if ruleBytes, err = json.Marshal(ruleList[i]); err != nil {
-		//	//_ = sendResult(w, errnoInvalidDetectParams, nil)
-		//	return false,err
-		//}
 		go func(ruleBytes []byte) {
-
 			defer func() {
 				if err := recover(); err != nil {
 					fmt.Println(8888)
@@ -127,8 +119,6 @@ func DetectHandler(params string,rules string) (resultType,error) {
 			}
 
 			//routineElapsed := time.Since(routineStart)
-
-			//log.Debug("DetectHandler Routine Cost Time: ",(time.Now().UnixNano()-routineStart)/1000,"costTime")
 			log.Info("DetectHandler Routine Cost Time: ", &TimeContext{
 				TraceId:TraceId,
 				CostTime:(time.Now().UnixNano()-routineStart)/1000,
@@ -149,7 +139,6 @@ func DetectHandler(params string,rules string) (resultType,error) {
 			//_ = sendResult(w, errnoDetectFailed, value.errorInfo.Error())
 			//return false,value.errorInfo
 		}
-
 		tmpStrategyResult := new(StrategyResult)
 		tmpStrategyResult.Name = value.ruleSign
 		tmpStrategyResult.IsHit = value.haveRisk
@@ -168,12 +157,9 @@ func DetectHandler(params string,rules string) (resultType,error) {
 	}
 
 	//elapsed := time.Since(start)
-
-	//log.Info("DetectHandler Cost Time: ", (time.Now().UnixNano()-start)/1000,"costTime")
 	log.Info("DetectHandler Cost Time: ", &TimeContext{
 		TraceId:TraceId,
 		CostTime:(time.Now().UnixNano()-start)/1000,
 	})
 	return makeResult(errnoSuccess,hitResult),nil
-	//return sendResult(errnoSuccess, hitResult)
 }
