@@ -40,7 +40,7 @@ func main() {
 	rules = common.RedisGet(key)
 	fmt.Println(rules)
 	if rules ==""{
-		fmt.Println("redis里面缓存的规则不能为空")
+		fmt.Println("redis里面缓存的规则集不能为空")
 		return
 	}
 	hit,_:=handlers.DetectHandler(params,rules)
