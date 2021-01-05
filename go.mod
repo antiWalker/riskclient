@@ -16,4 +16,5 @@ require (
 	gitlaball.nicetuan.net/wangjingnan/golib v0.0.0
 	riskengine/common v0.0.0
 	riskengine/handlers v0.0.0
+	riskengine/models v0.0.0
 )

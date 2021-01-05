@@ -5,19 +5,25 @@ import (
 	"fmt"
 	"github.com/astaxie/beego/orm"
 	_ "gitlaball.nicetuan.net/wangjingnan/golib/register-golang/db/orm"
+	"strconv"
 	"time"
 )
 
 type NegativeGrossProfitResult struct {
-	NegativeId    int `orm:"pk;auto;column(negative_id)"` //表示设置为主键并且自增，列名为id
-	NegativeType  int
-	SiteId        int
-	CreateTime    int64
-	OrderId       int
-	SubOrderId    int
-	UserId        int
-	MerchandiseId int
-	RuleId        int64
+	NegativeId      int `orm:"pk;auto;column(negative_id)"` //表示设置为主键并且自增，列名为id
+	NegativeType    int
+	SiteId          int
+	CreateTime      int64
+	UpdateTime      int64
+	OrderId         int
+	SubOrderId      int
+	UserId          int
+	MerchandiseId   int
+	RuleId          int64
+	Price           int
+	SupplierPrice   int
+	RuleResult      string
+	MerchandiseName string
 }
 
 type Order struct {
@@ -56,28 +62,28 @@ type Order struct {
   ruleId 规则id
   对比结果 命中 还是未命中
 */
-func AddNegativeGrossProfitResult(params string, ruleId int64, result bool) (int64, error) {
+func AddNegativeGrossProfitResult(params string, ruleId string) (int64, error) {
 	var order Order
 	if err := json.Unmarshal([]byte(params), &order); err == nil {
 		fmt.Println(order)
 		var o = orm.NewOrm()
 		negativeGrossProfitResult := NegativeGrossProfitResult{}
-		negativeGrossProfitResult.NegativeType = 1
-		if result {
-
-			negativeGrossProfitResult.NegativeType = 0
-			negativeGrossProfitResult.SiteId = order.SiteId
-			negativeGrossProfitResult.OrderId = order.OrderId
-			negativeGrossProfitResult.SubOrderId = order.SubOrderId
-			negativeGrossProfitResult.UserId = order.UserId
-			negativeGrossProfitResult.MerchandiseId = order.MerchandiseId
-			negativeGrossProfitResult.CreateTime = time.Now().Unix()
-			negativeGrossProfitResult.RuleId = ruleId
-			id, err := o.Insert(&negativeGrossProfitResult)
-			if err != nil {
-				fmt.Println("insert err :", err)
-				return id, err
-			}
+		negativeGrossProfitResult.NegativeType = 0
+		negativeGrossProfitResult.SiteId = order.SiteId
+		negativeGrossProfitResult.OrderId = order.OrderId
+		negativeGrossProfitResult.SubOrderId = order.SubOrderId
+		negativeGrossProfitResult.UserId = order.UserId
+		negativeGrossProfitResult.MerchandiseId = order.MerchandiseId
+		negativeGrossProfitResult.MerchandiseName = order.MerchandiseName
+		negativeGrossProfitResult.Price = order.Price
+		negativeGrossProfitResult.SupplierPrice = order.SupplyPrice
+		negativeGrossProfitResult.CreateTime = time.Now().Unix()
+		rule_Id, err := strconv.ParseInt(ruleId, 10, 64)
+		negativeGrossProfitResult.RuleId = rule_Id
+		id, err := o.Insert(&negativeGrossProfitResult)
+		if err != nil {
+			fmt.Println("insert err :", err)
+			return id, err
 		}
 
 		return 0, err

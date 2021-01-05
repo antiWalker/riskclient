@@ -3,14 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"riskengine/handlers"
-	"riskengine/models"
-
 	"github.com/sirupsen/logrus"
 	"gitlaball.nicetuan.net/wangjingnan/golib/gsr/log"
 	"gitlaball.nicetuan.net/wangjingnan/golib/logrus-gsr/wrapper"
 	"riskengine/common"
 	"riskengine/handlers"
+	"riskengine/models"
 )
 
 //var logger log.Logger
@@ -21,6 +19,13 @@ func init() {
 }
 
 func main() {
+	//从订单流里面获取想要的入库信息
+	type OrderInfo struct {
+		OrderId    json.Number `json:"orderId"`
+		SubOrderId json.Number `json:"subOrderId"`
+		UserId     json.Number `json:"userId"`
+		SiteId     json.Number `json:"siteId"`
+	}
 	// 从kafka取params然后从redis去取rules。然后调用风控引擎模块。
 	var params string
 	var rules string
@@ -32,36 +37,37 @@ func main() {
 	}
 	SiteId := raw.SiteId
 	//通过子站id拼成子站场景key，然后拿着key从redis获取这个场景要过的的规则集合
-	key := "RISK_FUMAOLI_SCENE_"+string(SiteId)
+	key := "RISK_FUMAOLI_SCENE_" + string(SiteId)
 	rules = common.RedisGet(key)
 	fmt.Println(rules)
-	if rules ==""{
+	if rules == "" {
 		fmt.Println("redis里面缓存的规则集不能为空")
 		return
 	}
-	hit,_:=handlers.DetectHandler(params,rules)
+	hit, _ := handlers.DetectHandler(params, rules)
 	//解析结果
 	Errno := hit.Errno
 	if Errno == 0 {
-		HRes :=hit.Data.(*handlers.HitResult)
+		HRes := hit.Data.(*handlers.HitResult)
 		IsHit := HRes.IsHit
 		HitList := HRes.StrategyList
 		//命中后再做log到db的操作。
 		if IsHit == true {
-			fmt.Println("{SubOrderId is : "+raw.SubOrderId)
-			fmt.Println("{UserId     is : "+raw.UserId)
+			fmt.Println("{SubOrderId is : " + raw.SubOrderId)
+			fmt.Println("{UserId     is : " + raw.UserId)
 			//SubOrderId,_ := raw.SubOrderId.Int64()
 			//UserId ,_    := raw.UserId.Int64()
 			fmt.Println(HitList)
-			insertToDb(params,HitList)
+			insertToDb(params, HitList)
 		}
-	}else{
+	} else {
 		//解析出错钉钉群报警
 		fmt.Println(hit.ErrMsg)
 	}
 }
+
 //如果一个订单过多条策略，则可以把这个订单下多个命中的策略批量insert。
-func insertToDb(params string,HitList []handlers.StrategyResult)()  {
+func insertToDb(params string, HitList []handlers.StrategyResult) {
 	for k, v := range HitList {
 		//fmt.Println(k, v)
 		ruleRes := v.IsHit
@@ -70,6 +76,7 @@ func insertToDb(params string,HitList []handlers.StrategyResult)()  {
 		if ruleRes {
 			//todo imp
 			//fmt.Println(ruleRes)
+			models.AddNegativeGrossProfitResult(params, v.Name)
 		}
 	}
 }
