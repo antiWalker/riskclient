@@ -18,21 +18,27 @@ var Operate = map[string]string{
 
 //支持表
 const (
-	TABLESALESORDER = "t_risk_engine_sales_order"
-	TABLEHOTELORDER = "t_risk_engine_hotel_order"
+	TABLESALESORDER                    = "t_risk_engine_sales_order"
+	TABLEHOTELORDER                    = "t_risk_engine_hotel_order"
+	TABLERISKNEGATIVEGROSSPROFITRESULT = "risk_negative_gross_profit_result"
 )
 
 type TableEngine interface {
 	SpitCount(job Job) (int64, []string, error)
 	SpitSum(job Job) (float64, []string, error)
 }
+
 var RegStruct = make(map[string]interface{})
+
 func init() {
 	RegStruct[TABLESALESORDER] = new(SalesOrder)
 	RegStruct[TABLEHOTELORDER] = new(HotelOrder)
+	RegStruct[TABLERISKNEGATIVEGROSSPROFITRESULT] = new(NegativeGrossProfitResult)
 	orm.RegisterModelWithPrefix("t_risk_engine_", RegStruct[TABLESALESORDER])
 	orm.RegisterModelWithPrefix("t_risk_engine_", RegStruct[TABLEHOTELORDER])
+	orm.RegisterModelWithPrefix("risk_", RegStruct[TABLERISKNEGATIVEGROSSPROFITRESULT])
 }
+
 type Where struct {
 	Column   string
 	Operator string
@@ -50,6 +56,7 @@ type Job struct {
 type CountFunc func(o orm.Ormer) orm.QuerySeter
 
 type SumFunc func(o orm.Ormer) orm.QuerySeter
+
 func getNumber(dataType reflect.Kind, value interface{}) float64 {
 	if dataType == reflect.Int8 {
 		return float64(value.(int8))
@@ -72,13 +79,13 @@ func getString(value interface{}) string {
 	case int:
 		return strconv.Itoa(value.(int))
 	case int64:
-		return strconv.FormatInt(value.(int64),10)
+		return strconv.FormatInt(value.(int64), 10)
 	case int32:
-		return strconv.FormatInt(value.(int64),10)
+		return strconv.FormatInt(value.(int64), 10)
 	case int16:
-		return strconv.FormatInt(value.(int64),10)
+		return strconv.FormatInt(value.(int64), 10)
 	case int8:
-		return strconv.FormatInt(value.(int64),10)
+		return strconv.FormatInt(value.(int64), 10)
 	case float32, float64:
 		return strconv.FormatFloat(value.(float64), 'f', -1, 64)
 	case string:
@@ -150,4 +157,3 @@ func wordFirstToUpper(str string) string {
 	}
 	return string(strArry)
 }
-
