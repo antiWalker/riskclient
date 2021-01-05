@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
+	"riskengine/common"
 	"riskengine/control"
 	"riskengine/core"
 	"sync"
@@ -39,7 +41,7 @@ type StrategyResult struct {
 /// 风控检测函数
 /// data => false 表示没有风险
 /// data => true  表示有风险
-func DetectHandler(params string,rules string) (bool,error) {
+func DetectHandler(params string,rules string) (resultType,error) {
 	var TraceId string
 
 	//fmt.Println("key not found:", k)
@@ -55,42 +57,53 @@ func DetectHandler(params string,rules string) (bool,error) {
 	var data interface{}
 
 	if err := json.Unmarshal([]byte(params), &data); err != nil {
-		//_ = sendResult(w, errnoParseArg, nil)
-		return false,err
+		return makeResult(errnoParseParamArg,nil),nil
 	}
-
 
 	if err := json.Unmarshal([]byte(rules), &ruleList); err != nil {
-		//_ = sendResult(w, errnoParseArg, nil)
-		return false,err
+		return makeResult(errnoParseRulesArg,nil),nil
 	}
-	//fmt.Println(ruleList)
-	if len(ruleList) == 0 {
-		//return sendResult(w, errnoEmptyRule, nil)
+	//解析数组，从redis里面去
+	var listKey []string
+	for _, value := range ruleList{
+		v := value.(string)
+
+		listKey =append(listKey,v)
 	}
 
+	keyValues,_ :=common.RedisMGet(listKey)
+
+	if len(ruleList) == 0 {
+		return makeResult(errnoEmptyRule,nil),nil
+	}
 	detectChannel := make(chan DetectChannel, len(ruleList))
 
 	wg := sync.WaitGroup{}
 	wg.Add(len(ruleList))
-	for i := 0; i < len(ruleList); i++ {
+	for kk, value := range keyValues {
 		var ruleBytes []byte
-		var err error
-
-		if ruleBytes, err = json.Marshal(ruleList[i]); err != nil {
-			//_ = sendResult(w, errnoInvalidDetectParams, nil)
-			return false,err
+		ruleData,ok := value.(string)
+		if ok {
+			ruleBytes = []byte(ruleData)
+		}else {
+			//return makeResult(errnoEmptyRule, nil),nil
+			//return "", haveRisk, reason, errors.New("riskEngine: "+kk+"rule is empty")
+			type rule struct {
+				Ruleindex int `json:"ruleindex"`
+			}
+			log.Error("rule is empty ",&rule{
+				Ruleindex:kk,
+			})
+			return makeResult(errnoEmptyRule,nil),nil
 		}
-
 		go func(ruleBytes []byte) {
 			defer func() {
 				if err := recover(); err != nil {
-					log.Error(err.(error).Error())
+					fmt.Println(8888)
 				}
 			}()
 
 			routineStart := time.Now().UnixNano()
-
 			defer wg.Done()
 
 			var thisDetectChannel DetectChannel
@@ -113,8 +126,6 @@ func DetectHandler(params string,rules string) (bool,error) {
 			}
 
 			//routineElapsed := time.Since(routineStart)
-
-			//log.Debug("DetectHandler Routine Cost Time: ",(time.Now().UnixNano()-routineStart)/1000,"costTime")
 			log.Info("DetectHandler Routine Cost Time: ", &TimeContext{
 				TraceId:TraceId,
 				CostTime:(time.Now().UnixNano()-routineStart)/1000,
@@ -132,10 +143,11 @@ func DetectHandler(params string,rules string) (bool,error) {
 
 	for value := range detectChannel {
 		if value.errorInfo != nil {
+			//fmt.Println(value.errorInfo)
 			//_ = sendResult(w, errnoDetectFailed, value.errorInfo.Error())
-			return false,value.errorInfo
+			//return false,value.errorInfo
+			return makeResult(errnoInvalidDetectParams,nil),nil
 		}
-
 		tmpStrategyResult := new(StrategyResult)
 		tmpStrategyResult.Name = value.ruleSign
 		tmpStrategyResult.IsHit = value.haveRisk
@@ -154,12 +166,9 @@ func DetectHandler(params string,rules string) (bool,error) {
 	}
 
 	//elapsed := time.Since(start)
-
-	//log.Info("DetectHandler Cost Time: ", (time.Now().UnixNano()-start)/1000,"costTime")
 	log.Info("DetectHandler Cost Time: ", &TimeContext{
 		TraceId:TraceId,
 		CostTime:(time.Now().UnixNano()-start)/1000,
 	})
-	return hitResult.IsHit,nil
-	//return sendResult(errnoSuccess, hitResult)
+	return makeResult(errnoSuccess,hitResult),nil
 }

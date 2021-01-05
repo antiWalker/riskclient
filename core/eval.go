@@ -716,7 +716,6 @@ func Eval(rule []byte, params map[string]interface{}) (string, bool, []string, e
 	if params == nil {
 		return "", haveRisk, reason, errors.New("riskEngine: params is nil")
 	}
-
 	cookedRule, ok := constructNodeFromString(ctx, rule)
 
 	evalStart := time.Now().UnixNano()
@@ -782,6 +781,7 @@ func Eval(rule []byte, params map[string]interface{}) (string, bool, []string, e
 	for _, el := range matchStack {
 		matchRisk = matchRisk && el.(*simpleNode).Value.(bool)
 	}
+
 	// if match the matchRule, then check if match the exceptionRule
 	if matchRisk == true && exceptionRule != nil {
 

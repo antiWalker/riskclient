@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"riskengine/handlers"
 	"riskengine/models"
@@ -8,6 +9,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"gitlaball.nicetuan.net/wangjingnan/golib/gsr/log"
 	"gitlaball.nicetuan.net/wangjingnan/golib/logrus-gsr/wrapper"
+	"riskengine/common"
+	"riskengine/handlers"
 )
 
 //var logger log.Logger
@@ -22,14 +25,50 @@ func main() {
 	var params string
 	var rules string
 	//从kafka获取的order data
-	params = "{\n\t\"businessAreaId\": 671,\n\t\"couponMoney\": 0,\n\t\"grouponId\": 98383,\n\t\"isNewOrder\": 0,\n\t\"mainSiteCityId\": 107,\n\t\"mainSiteCityName\": \"沈阳市\",\n\t\"mainSiteId\": 10386,\n\t\"mainSiteName\": \"沈阳市\",\n\t\"merchandiseAbbr\": \"正大 熘肉段\",\n\t\"merchandiseId\": 111,\n\t\"merchandiseName\": \"正大 熘肉段320g\",\n\t\"merchandisePrice\": 690,\n\t\"orderId\": 450336553706083850,\n\t\"orderStatus\": 5,\n\t\"partnerId\": 271674,\n\t\"price\": 690,\n\t\"quantity\": 1,\n\t\"rebateAmount\": 69,\n\t\"siteCityId\": 107,\n\t\"siteCityName\": \"沈阳市\",\n\t\"siteId\": 10387,\n\t\"siteName\": \"沈阳市（子站）\",\n\t\"subOrderId\": 450336553706083851,\n\t\"supplyPrice\": 1523,\n\t\"ts\": 1608885401000,\n\t\"tss\": \"2020-12-25 16:36:41\",\n\t\"userId\": 118979605,\n\t\"warehouseId\": 990\n}"
-	//从redis获取的规则 rules = "[123,456]"
-	rules = "[{\n\t\"exception\": {\n\t\t\"children\": [{\n\t\t\t\"children\": [{\n\t\t\t\t\"type\": \"number\",\n\t\t\t\t\"value\": 0\n\t\t\t}, {\n\t\t\t\t\"type\": \"number\",\n\t\t\t\t\"value\": 0\n\t\t\t}],\n\t\t\t\"type\": \"operator\",\n\t\t\t\"value\": \"==\"\n\t\t}, {\n\t\t\t\"children\": [{\n\t\t\t\t\"type\": \"field\",\n\t\t\t\t\"value\": \"merchandiseId\"\n\t\t\t}, {\n\t\t\t\t\"type\": \"string\",\n\t\t\t\t\"value\": \"111,222,333,4444,2357774,2059146,2704628,2360549,2407079,2325593,2365315,2356518,2364206,2646044,2357596,2338713,2193923,2435266,2093343,2238334,2357447,2070199,2104105,2062278,2647525,2056748,2062500,2755157,2894543,2056830,2092108,2087231,2886799,2701509,2326894,2219299,2149028,2248710,2177535,2757530,2798182,2645602,2503830,2585899,2867689,2358390,2341443,2805853,2704112,2757540,2102080,2162205,2809908,2056669,2324597,2752501,2093343,2080119,2762566,2407079,2359677,2791002,2376612,2378562,2224719,2093173,2307395,2655568,2789503,2757587,2229594,2845549,2845562,2701509,2092379,2421470,2891745,2102045,2635805,2093394,2186694,2092284,2359149,2879025,2086883,2055891,2851964,2335996,2425041,2168104,2191156,2079981,2917438,2582244,2210911,2861993,2780139,2151770,2325589,2615435,2372636,2308412,2076048,2845476,2148961,2501467,2649407,2646532,2861003,2608776,2273467,2873201,2575023,2889790,2079981,2873934,2423325,2527424,2643346,2647988,2528183,2824446,2212781,2196262,2743959,2643569,2602305,2428644,2631847,2749720,2737030,2655716,2571730,2173181,2428632,2425280,2547231,2650143,2215577,2389791,2743953,2693520,367585,2264592,2745350,2516393,2189488,2369695,2809270,2847035,2665580,2846338,2214589,2736354,2604989,2442058,2527103,2691851,2212781,2192819,2419543,2130887,2873662,2216701,2543705,2770434,402509,1004150,2159227,2258512,2858066,2764015,2840735,2545527,2861051,2637553,2919382,2746152,2322861,2885036,2134729,2894339,2824426,2940197,2932959,2308293,2825734,2090717,2206655,2721611,2615045,2346829,2146814,2969272,2744464,2824426,2825734,2699627,2800046,2721547,2704886,2933977,2688495,2979795,2897282,2659959,2673629,2253447,2166066,2092830,2796353,2757064,2803058,2760614,2934194,2358204,2253470,2399221,2262112,2913095,2654647,2806111,2655121,2465598,2360298,2358154,2646144,2103197,2951953,2645095,2969621,2079854,2552404,2538894,2152152,2516080,2130056,2396355,2603432,2135667,2836422,2724392,2895464,2989809,2389400,2962786,2895570,2130056,2079854,367586,2199504,2262496,2262895,2281216,2308293,2332279,2360280,2615045,2659959,2679100,2734305,2758489,2759671,2760614,2824426,2826375,2897988,2941383,2948885,2963539,2070390,2092382,2092830,2167529,2191327,2277941,2359677,2436586,2516405,2546302,2562917,2679647,2839111,2912760,3022853,3023920\"\n\t\t\t}],\n\t\t\t\"type\": \"operator\",\n\t\t\t\"value\": \"inWordList\"\n\t\t}],\n\t\t\"type\": \"logic\",\n\t\t\"value\": \"and\"\n\t},\n\t\"sign\": \"negative-gross-profit1001\",\n\t\"match\": {\n\t\t\"children\": [{\n\t\t\t\"children\": [{\n\t\t\t\t\"type\": \"number\",\n\t\t\t\t\"value\": 0\n\t\t\t}, {\n\t\t\t\t\"type\": \"number\",\n\t\t\t\t\"value\": 0\n\t\t\t}],\n\t\t\t\"type\": \"operator\",\n\t\t\t\"value\": \"==\"\n\t\t}, {\n\t\t\t\"children\": [{\n\t\t\t\t\"children\": [{\n\t\t\t\t\t\"type\": \"field\",\n\t\t\t\t\t\"value\": \"price\"\n\t\t\t\t}, {\n\t\t\t\t\t\"type\": \"field\",\n\t\t\t\t\t\"value\": \"supplyPrice\"\n\t\t\t\t}],\n\t\t\t\t\"type\": \"operator\",\n\t\t\t\t\"value\": \"-\"\n\t\t\t}, {\n\t\t\t\t\"type\": \"number\",\n\t\t\t\t\"value\": 0\n\t\t\t}],\n\t\t\t\"type\": \"operator\",\n\t\t\t\"value\": \"<\"\n\t\t}],\n\t\t\"type\": \"logic\",\n\t\t\"value\": \"and\"\n\t}\n}]"
-	hit, _ := handlers.DetectHandler(params, rules)
-	fmt.Println(hit)
-	//把结果insert到polardb
-	//todo imp
-	id, err := models.AddNegativeGrossProfitResult(params, 0, true)
-	fmt.Println(id)
-	fmt.Println(err)
+	params = "{\n\t\"businessAreaId\": 671,\n\t\"couponMoney\": 0,\n\t\"grouponId\": 98383,\n\t\"isNewOrder\": 0,\n\t\"mainSiteCityId\": 107,\n\t\"mainSiteCityName\": \"沈阳市\",\n\t\"mainSiteId\": 10386,\n\t\"mainSiteName\": \"沈阳市\",\n\t\"merchandiseAbbr\": \"正大 熘肉段\",\n\t\"merchandiseId\": 1112,\n\t\"merchandiseName\": \"正大 熘肉段320g\",\n\t\"merchandisePrice\": 690,\n\t\"orderId\": 450336553706083850,\n\t\"orderStatus\": 5,\n\t\"partnerId\": 271674,\n\t\"price\": 60,\n\t\"quantity\": 1,\n\t\"rebateAmount\": 69,\n\t\"siteCityId\": 107,\n\t\"siteCityName\": \"沈阳市\",\n\t\"siteId\": 10030,\n\t\"siteName\": \"沈阳市（子站）\",\n\t\"subOrderId\": 450336553706083851,\n\t\"supplyPrice\": 1523,\n\t\"ts\": 1608885401000,\n\t\"tss\": \"2020-12-25 16:36:41\",\n\t\"userId\": 118979605,\n\t\"warehouseId\": 990\n}"
+	var raw = new(OrderInfo)
+	if err := json.Unmarshal([]byte(params), &raw); err != nil {
+		fmt.Println(err)
+	}
+	SiteId := raw.SiteId
+	//通过子站id拼成子站场景key，然后拿着key从redis获取这个场景要过的的规则集合
+	key := "RISK_FUMAOLI_SCENE_"+string(SiteId)
+	rules = common.RedisGet(key)
+	fmt.Println(rules)
+	if rules ==""{
+		fmt.Println("redis里面缓存的规则集不能为空")
+		return
+	}
+	hit,_:=handlers.DetectHandler(params,rules)
+	//解析结果
+	Errno := hit.Errno
+	if Errno == 0 {
+		HRes :=hit.Data.(*handlers.HitResult)
+		IsHit := HRes.IsHit
+		HitList := HRes.StrategyList
+		//命中后再做log到db的操作。
+		if IsHit == true {
+			fmt.Println("{SubOrderId is : "+raw.SubOrderId)
+			fmt.Println("{UserId     is : "+raw.UserId)
+			SubOrderId,_ := raw.SubOrderId.Int64()
+			UserId ,_    := raw.UserId.Int64()
+			insertToDb(HitList,SubOrderId,UserId)
+		}
+	}else{
+		//解析出错钉钉群报警
+		fmt.Println(hit.ErrMsg)
+	}
+}
+//如果一个订单过多条策略，则可以把这个订单下多个命中的策略批量insert。
+func insertToDb(HitList []handlers.StrategyResult,SubOrderId int64,UserId int64)()  {
+	for k, v := range HitList {
+		//fmt.Println(k, v)
+		ruleRes := v.IsHit
+		fmt.Println(k, ruleRes)
+		//把命中的策略结果insert到polardb
+		if ruleRes {
+			//todo imp
+			//fmt.Println(ruleRes)
+		}
+	}
 }

@@ -406,7 +406,6 @@ func constructNodeFromString(ctx context.Context, ruleStr []byte) (*cookedRuleTy
 	if err := json.Unmarshal(ruleStr, &raw); err != nil {
 		return nil, err
 	}
-
 	if raw.Sign == "" {
 		return nil, errors.New("The Sign of Rule is Empty!\n ")
 	}
