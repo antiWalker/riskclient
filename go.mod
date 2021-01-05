@@ -13,6 +13,7 @@ replace (
 
 require (
 	github.com/Shopify/sarama v1.27.2
+	github.com/astaxie/beego v1.12.3
 	github.com/sirupsen/logrus v1.7.0
 	gitlaball.nicetuan.net/wangjingnan/golib v0.0.0
 	riskengine/common v0.0.0
