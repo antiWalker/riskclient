@@ -6,6 +6,7 @@ import (
 	"github.com/Shopify/sarama"
 	"riskengine/common"
 	"riskengine/handlers"
+	"riskengine/models"
 	"strconv"
 )
 
@@ -32,7 +33,7 @@ func (c *Consumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim saram
 	// 从kafka取params然后从redis去取rules。然后调用风控引擎模块。
 	//从kafka获取的order data
 	for msg := range claim.Messages() {
-		fmt.Printf("Msg partition: %d, timestamp: %v, value: %s", msg.Partition, msg.Timestamp, string(msg.Value))
+		fmt.Printf("Msg partition: %d, timestamp: %v, value: %s \n", msg.Partition, msg.Timestamp, string(msg.Value))
 		doConsumer(string(msg.Value))
 		// 手动确认消息
 		session.MarkMessage(msg, "")
@@ -41,7 +42,7 @@ func (c *Consumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim saram
 }
 
 func doConsumer(params string) error {
-	var raw = new(OrderInfo)
+	var raw = new(models.Order)
 	if err := json.Unmarshal([]byte(params), &raw); err != nil {
 		fmt.Println("json format error , ", err)
 	}
@@ -65,8 +66,8 @@ func doConsumer(params string) error {
 		HitList := HRes.StrategyList
 		//命中后再做log到db的操作。
 		if IsHit == true {
-			fmt.Println("{SubOrderId is : " + raw.SubOrderId)
-			fmt.Println("{UserId     is : " + raw.UserId)
+			fmt.Println("SubOrderId is : ", raw.SubOrderId)
+			fmt.Println("UserId     is : ", raw.UserId)
 			//SubOrderId,_ := raw.SubOrderId.Int64()
 			//UserId ,_    := raw.UserId.Int64()
 			fmt.Println(HitList)
@@ -77,4 +78,19 @@ func doConsumer(params string) error {
 		fmt.Println(hit.ErrMsg)
 	}
 	return nil
+}
+
+//如果一个订单过多条策略，则可以把这个订单下多个命中的策略批量insert。
+func InsertToDb(params string, HitList []handlers.StrategyResult) {
+	for k, v := range HitList {
+		//fmt.Println(k, v)
+		ruleRes := v.IsHit
+		fmt.Println(k, ruleRes)
+		//把命中的策略结果insert到polardb
+		if ruleRes {
+			//todo imp
+			//fmt.Println(ruleRes)
+			models.AddNegativeGrossProfitResult(params, v.Name)
+		}
+	}
 }
