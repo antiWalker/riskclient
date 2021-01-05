@@ -54,9 +54,10 @@ func main() {
 		if IsHit == true {
 			fmt.Println("{SubOrderId is : "+raw.SubOrderId)
 			fmt.Println("{UserId     is : "+raw.UserId)
-			SubOrderId,_ := raw.SubOrderId.Int64()
-			UserId ,_    := raw.UserId.Int64()
-			insertToDb(HitList,SubOrderId,UserId)
+			//SubOrderId,_ := raw.SubOrderId.Int64()
+			//UserId ,_    := raw.UserId.Int64()
+			fmt.Println(HitList)
+			insertToDb(params,HitList)
 		}
 	}else{
 		//解析出错钉钉群报警
@@ -64,7 +65,7 @@ func main() {
 	}
 }
 //如果一个订单过多条策略，则可以把这个订单下多个命中的策略批量insert。
-func insertToDb(HitList []handlers.StrategyResult,SubOrderId int64,UserId int64)()  {
+func insertToDb(params string,HitList []handlers.StrategyResult)()  {
 	for k, v := range HitList {
 		//fmt.Println(k, v)
 		ruleRes := v.IsHit
