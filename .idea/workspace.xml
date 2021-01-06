@@ -3,9 +3,32 @@
   <component name="ChangeListManager">
     <list default="true" id="835fd3a1-505c-4524-a1ae-7bc1526162fe" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handlers/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/go.mod" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/go.sum" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/consumer/consumer.go" beforeDir="false" afterPath="$PROJECT_DIR$/consumer/consumer.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/control/detect.go" beforeDir="false" afterPath="$PROJECT_DIR$/control/detect.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/control/field/field.go" beforeDir="false" afterPath="$PROJECT_DIR$/control/field/field.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/control/field/operator.go" beforeDir="false" afterPath="$PROJECT_DIR$/control/field/operator.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/control/go.mod" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/control/go.sum" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/control/operator/operator.go" beforeDir="false" afterPath="$PROJECT_DIR$/control/operator/operator.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/eval.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/eval.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/go.mod" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/go.sum" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/in.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/in.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/pool.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/pool.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/pool_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/pool_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handlers/detect.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/detect.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handlers/go.mod" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/handlers/go.sum" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/handlers/operators.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/operators.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/go.mod" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/go.sum" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/monitor/dingding.go" beforeDir="false" afterPath="$PROJECT_DIR$/monitor/dingding.go" afterDir="false" />
     </list>
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -74,18 +97,6 @@
       <recent name="D:\gopro\riskbig\core\rules" />
     </key>
   </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
-      <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
-      </list>
-    </option>
-  </component>
   <component name="RunManager">
     <configuration name="go build bigrisk" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="riskfinal" />
@@ -102,7 +113,7 @@
       </list>
     </recent_temporary>
   </component>
-  <component name="SpellCheckerSettings" BundledDictionaries="0" Folders="0" CustomDictionaries="0" Dictionaries="0" CorrectionsLimit="5" DefaultDictionary="application-level" UseSingleDictionary="true" />
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="false" />
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
@@ -111,13 +122,12 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State>
-              <option name="COLUMN_ORDER" />
-            </State>
+            <State />
           </value>
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="负毛利结果表 数据的的入库" />
@@ -125,6 +135,11 @@
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
+    <environment>
+      <map>
+        <entry key="GOPROXY" value="https://goproxy.cn,direct" />
+      </map>
+    </environment>
     <proxy>https://goproxy.cn,direct</proxy>
   </component>
 </project>

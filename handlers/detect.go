@@ -1,11 +1,11 @@
 package handlers
 
 import (
+	"bigrisk/common"
+	"bigrisk/control"
+	"bigrisk/core"
 	"encoding/json"
 	"fmt"
-	"riskengine/common"
-	"riskengine/control"
-	"riskengine/core"
 	"sync"
 	"time"
 

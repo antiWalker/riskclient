@@ -1,8 +1,8 @@
 package core
 
 import (
+	"bigrisk/models"
 	"errors"
-	"riskengine/models"
 	"strings"
 )
 

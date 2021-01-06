@@ -1,7 +1,7 @@
 package control
 
 import (
-	"riskengine/core"
+	"bigrisk/core"
 )
 
 /// 风控检测

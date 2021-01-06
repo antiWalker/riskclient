@@ -10,7 +10,7 @@ import (
 	"github.com/astaxie/beego"
 	"io/ioutil"
 	"net/http"
-	"riskengine/common"
+	"bigrisk/common"
 	"time"
 )
 

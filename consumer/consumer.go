@@ -1,13 +1,13 @@
 package consumer
 
 import (
+	"bigrisk/common"
+	"bigrisk/handlers"
+	"bigrisk/models"
 	"bigrisk/monitor"
 	"encoding/json"
 	"fmt"
 	"github.com/Shopify/sarama"
-	"riskengine/common"
-	"riskengine/handlers"
-	"riskengine/models"
 	"strconv"
 )
 

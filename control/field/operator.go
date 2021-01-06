@@ -1,6 +1,6 @@
 package field
 
-import "riskengine/core"
+import "bigrisk/core"
 
 /// 获取 fieldName 支持的 操作符号
 func Operators(fieldName string) []string {
