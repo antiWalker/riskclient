@@ -71,7 +71,7 @@ func prod() {
 
 	err = consumerGroup.Close()
 	if err != nil {
-		log.Fatal("Error closing consumer group: %v", err)
+		log.Fatal(" Error closing consumer group: %v", err)
 	}
 }
 
