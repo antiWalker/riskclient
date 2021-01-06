@@ -1,6 +1,6 @@
 package operator
 
-import "riskengine/core"
+import "bigrisk/core"
 
 // return nil on error
 func OpInfo(op core.AOT) *core.OpInfo {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bigrisk/common"
 	"bigrisk/consumer"
 	"context"
 	"github.com/sirupsen/logrus"
@@ -8,7 +9,6 @@ import (
 	"gitlaball.nicetuan.net/wangjingnan/golib/logrus-gsr/wrapper"
 	"os"
 	"os/signal"
-	"riskengine/common"
 	"sync"
 	"syscall"
 )

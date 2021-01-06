@@ -1,10 +1,10 @@
 package core
 
 import (
+	"bigrisk/models"
 	"fmt"
 	"github.com/astaxie/beego/orm"
 	"math/rand"
-	"riskengine/models"
 	"strconv"
 	"testing"
 	"time"

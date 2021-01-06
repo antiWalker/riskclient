@@ -1,6 +1,7 @@
 package monitor
 
 import (
+	"bigrisk/common"
 	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
@@ -10,7 +11,6 @@ import (
 	"github.com/astaxie/beego"
 	"io/ioutil"
 	"net/http"
-	"riskengine/common"
 	"time"
 )
 

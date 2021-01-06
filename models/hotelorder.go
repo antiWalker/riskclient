@@ -3,8 +3,8 @@ package models
 import (
 	"errors"
 	"github.com/astaxie/beego/orm"
-	"reflect"
 	_ "gitlaball.nicetuan.net/wangjingnan/golib/register-golang/db/orm"
+	"reflect"
 )
 
 //订单表结构
