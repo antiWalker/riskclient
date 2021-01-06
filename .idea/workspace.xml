@@ -2,9 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="835fd3a1-505c-4524-a1ae-7bc1526162fe" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/core/rules/negative-gross-profit1002.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models/paysuborder.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/rules/negative-gross-profit1001.json" beforeDir="false" afterPath="$PROJECT_DIR$/core/rules/negative-gross-profit1001.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/eval.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/eval.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handlers/detect.go" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/detect.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/base.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/base.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,7 +59,7 @@
     <property name="go.import.settings.migrated" value="true" />
     <property name="go.sdk.automatically.set" value="true" />
     <property name="go.tried.to.enable.integration.vgo.integrator" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/core/rules" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/models" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -67,6 +70,7 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\gopro\riskclient\models" />
       <recent name="D:\gopro\riskclient\core\rules" />
       <recent name="D:\sht\goproject\riskclient\models" />
       <recent name="D:\gopro\riskbig\core\rules" />

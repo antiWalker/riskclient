@@ -4,6 +4,7 @@ import (
 	"bigrisk/models"
 	"context"
 	"errors"
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -97,7 +98,7 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 					if strings.HasPrefix(valueStr, "$") {
 						valueMap := strings.Split(valueStr, "$")
 						//	valueStr := reflect.ValueOf(params).Elem().FieldByName(valueMap[1])
-						key := changeField(valueMap[1])
+						key := valueMap[1]
 
 						valueStr, ok := params[key]
 						if ok == false {
@@ -213,6 +214,7 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 
 			jobs = append(jobs, models.Job{1, string(c.Value), columnStr, tableStr, wh})
 			res,ok:= QueryJob(jobs)
+			//fmt.Println(res)
 			if !ok{
 				return nil,errors.New("riskEngine: not supported this type")
 			}
@@ -766,9 +768,9 @@ func Eval(rule []byte, params map[string]interface{}) (string, bool, []string, e
 		MatchRule:matchRule,
 	})
 	var matchStack Stack
-
 	ok1 := matchRule.Execute(ctx, &matchStack, params, &reason)
 	if ok1 != nil {
+		fmt.Println(ok1.Error())
 		return sign, haveRisk, reason, errors.New("riskEngine: eval match rule failed\n" + ok1.Error())
 	}
 

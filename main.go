@@ -97,7 +97,7 @@ func local() {
 	if err := json.Unmarshal([]byte(params), &raw); err != nil {
 		fmt.Println(err)
 	}
-	SiteId := raw.SiteId
+	SiteId := "10587"
 	//通过子站id拼成子站场景key，然后拿着key从redis获取这个场景要过的的规则集合
 	key := "RISK_FUMAOLI_SCENE_" + string(SiteId)
 	rules = common.RedisGet(key)

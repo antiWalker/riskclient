@@ -146,7 +146,7 @@ func DetectHandler(params string,rules string) (resultType,error) {
 			//fmt.Println(value.errorInfo)
 			//_ = sendResult(w, errnoDetectFailed, value.errorInfo.Error())
 			//return false,value.errorInfo
-			return makeResult(errnoInvalidDetectParams,nil),nil
+			//return makeResult(errnoInvalidDetectParams,nil),nil
 		}
 		tmpStrategyResult := new(StrategyResult)
 		tmpStrategyResult.Name = value.ruleSign
