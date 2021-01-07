@@ -9,5 +9,5 @@ require (
 	github.com/astaxie/beego v1.12.3
 	github.com/go-redis/redis v6.14.2+incompatible
 	github.com/sirupsen/logrus v1.7.0
-	gitlaball.nicetuan.net/wangjingnan/golib v0.0.0
+	gitlaball.nicetuan.net/wangjingnan/golib v1.0.0
 )

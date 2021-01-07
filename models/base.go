@@ -21,6 +21,7 @@ const (
 	TABLESALESORDER                    = "t_risk_engine_sales_order"
 	TABLEHOTELORDER                    = "t_risk_engine_hotel_order"
 	TABLERISKNEGATIVEGROSSPROFITRESULT = "risk_negative_gross_profit_result"
+	TABLEPAYSUBORDER = "paysuborder"
 )
 
 type TableEngine interface {
@@ -34,9 +35,13 @@ func init() {
 	RegStruct[TABLESALESORDER] = new(SalesOrder)
 	RegStruct[TABLEHOTELORDER] = new(HotelOrder)
 	RegStruct[TABLERISKNEGATIVEGROSSPROFITRESULT] = new(NegativeGrossProfitResult)
+	RegStruct[TABLEPAYSUBORDER] = new(PaySubOrder)
+
 	orm.RegisterModelWithPrefix("t_risk_engine_", RegStruct[TABLESALESORDER])
 	orm.RegisterModelWithPrefix("t_risk_engine_", RegStruct[TABLEHOTELORDER])
 	orm.RegisterModelWithPrefix("risk_", RegStruct[TABLERISKNEGATIVEGROSSPROFITRESULT])
+
+	orm.RegisterModel(RegStruct[TABLEPAYSUBORDER])
 }
 
 type Where struct {

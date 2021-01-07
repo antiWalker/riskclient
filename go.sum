@@ -176,8 +176,8 @@ github.com/wendal/errors v0.0.0-20130201093226-f66c77a7882b/go.mod h1:Q12BUT7DqI
 github.com/xdg/scram v0.0.0-20180814205039-7eeb5667e42c/go.mod h1:lB8K/P019DLNhemzwFU4jHLhdvlE6uDZjXFejJXr49I=
 github.com/xdg/stringprep v1.0.0/go.mod h1:Jhud4/sHMO4oL310DaZAKk9ZaJ08SJfe+sJh0HrGL1Y=
 github.com/yuin/gopher-lua v0.0.0-20171031051903-609c9cd26973/go.mod h1:aEV29XrmTYFr3CiRxZeGHpkvbwq+prZduBqMaascyCU=
-gitlaball.nicetuan.net/wangjingnan/golib v0.0.0 h1:2YzWju6ilkmQpiPKyGJPfarqH7SqZHxDSzgRoVS7AP8=
-gitlaball.nicetuan.net/wangjingnan/golib v0.0.0/go.mod h1:j6N8tS/PwgPoLZilFDQ0lQ2u7qWRazjNn0AkBYPmJOg=
+gitlaball.nicetuan.net/wangjingnan/golib v1.0.0 h1:N72kQ8qHACSTODGZEMw0FYNRjsqUUDV9C9Afvszj7lQ=
+gitlaball.nicetuan.net/wangjingnan/golib v1.0.0/go.mod h1:j6N8tS/PwgPoLZilFDQ0lQ2u7qWRazjNn0AkBYPmJOg=
 golang.org/x/crypto v0.0.0-20180904163835-0709b304e793/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
