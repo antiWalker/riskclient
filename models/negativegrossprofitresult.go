@@ -17,6 +17,7 @@ type NegativeGrossProfitResult struct {
 	CreateTime      int64
 	UpdateTime      int64
 	OrderId         int
+	OrderTime       int
 	SubOrderId      int
 	UserId          int
 	MerchandiseId   int
@@ -55,7 +56,7 @@ type Order struct {
 	SubOrderId       int    `json:"subOrderId"`
 	SupplyPrice      int    `json:"supplyPrice"`
 	Ts               int    `json:"ts"`
-	Tcs              string `json:"tcs"`
+	Tss              string `json:"tss"`
 	UserId           int    `json:"userId"`
 	WarehouseId      int    `json:"warehouseId"`
 }
@@ -82,6 +83,7 @@ func AddNegativeGrossProfitResult(params string, ruleId string) (int64, error) {
 		negativeGrossProfitResult.SupplierPrice = order.SupplyPrice
 		negativeGrossProfitResult.PartnerId = order.PartnerId
 		negativeGrossProfitResult.Quantity = order.Quantity
+		negativeGrossProfitResult.OrderTime = order.Ts
 		negativeGrossProfitResult.CreateTime = time.Now().Unix()
 		rule_Id, err := strconv.ParseInt(ruleId, 10, 64)
 		negativeGrossProfitResult.RuleId = rule_Id
