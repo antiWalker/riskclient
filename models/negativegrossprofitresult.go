@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/astaxie/beego/orm"
+	"gitlaball.nicetuan.net/wangjingnan/golib/gsr/log"
 	_ "gitlaball.nicetuan.net/wangjingnan/golib/register-golang/db/orm"
 	"strconv"
 	"time"
@@ -16,11 +17,14 @@ type NegativeGrossProfitResult struct {
 	CreateTime      int64
 	UpdateTime      int64
 	OrderId         int
+	OrderTime       int
 	SubOrderId      int
 	UserId          int
 	MerchandiseId   int
 	RuleId          int64
 	Price           int
+	PartnerId       int
+	Quantity        int
 	SupplierPrice   int
 	RuleResult      string
 	MerchandiseName string
@@ -52,7 +56,7 @@ type Order struct {
 	SubOrderId       int    `json:"subOrderId"`
 	SupplyPrice      int    `json:"supplyPrice"`
 	Ts               int    `json:"ts"`
-	Tcs              string `json:"tcs"`
+	Tss              string `json:"tss"`
 	UserId           int    `json:"userId"`
 	WarehouseId      int    `json:"warehouseId"`
 }
@@ -77,18 +81,23 @@ func AddNegativeGrossProfitResult(params string, ruleId string) (int64, error) {
 		negativeGrossProfitResult.MerchandiseName = order.MerchandiseName
 		negativeGrossProfitResult.Price = order.Price
 		negativeGrossProfitResult.SupplierPrice = order.SupplyPrice
+		negativeGrossProfitResult.PartnerId = order.PartnerId
+		negativeGrossProfitResult.Quantity = order.Quantity
+		negativeGrossProfitResult.OrderTime = order.Ts
 		negativeGrossProfitResult.CreateTime = time.Now().Unix()
 		rule_Id, err := strconv.ParseInt(ruleId, 10, 64)
 		negativeGrossProfitResult.RuleId = rule_Id
 		o.Using("default")
 		id, err := o.Insert(&negativeGrossProfitResult)
 		if err != nil {
+			log.Info(" %d insert success ! ", id)
 			fmt.Println("insert err :", err)
 			return id, err
 		}
 
 		return 0, err
 	} else {
+		log.Info(" 订单号为：%d insert fail ! ", order.OrderId)
 		fmt.Println(err)
 		return 0, err
 	}
