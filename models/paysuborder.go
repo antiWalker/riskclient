@@ -12,17 +12,22 @@ import (
 
 //订单表结构
 type PaySubOrder struct {
-	Suborderid             int64   `orm:"column(suborderid);pk"`      // 订单id
-	Merchandiseid          int64   `json:"merchandiseid"`             // 商品id
-	Orderstatus            int64   `json:"orderstatus"`               // 状态
-	Quantity               int64   `json:"quantity"`                  // 数量
-	Suborderdateline       int64   `json:"suborderdateline"`          // 时间
+	Suborderid       int64 `orm:"column(suborderid);pk"` // 订单id
+	Merchandiseid    int64 `json:"merchandiseid"`        // 商品id
+	Orderstatus      int64 `json:"orderstatus"`          // 状态
+	Quantity         int64 `json:"quantity"`             // 数量
+	Suborderdateline int64 `json:"suborderdateline"`     // 时间
+}
+
+func (u *PaySubOrder) TableName() string {
+	return "paysuborder"
 }
 
 //sales-order按照条件出sum
 func (paySubOrder PaySubOrder) SpitCount(job Job) (int64, []string, error) {
-	orm.Debug=true
+	orm.Debug = true
 	v := func(o orm.Ormer) orm.QuerySeter {
+		o.Using("slave")
 		return o.QueryTable(new(PaySubOrder))
 	}
 	count, err := SpitCountInner(job, v)
@@ -49,7 +54,7 @@ func SplitCountInnerPaySubOrder(job Job, countFunc CountFunc, tableRow interface
 
 		var columnName = selectStruct[1]
 	*/
-	columnName :=job.Select[7 : ]
+	columnName := job.Select[7:]
 	//转化为首字母大写
 	name := getColName(columnName)
 	//提取字类型
@@ -105,7 +110,7 @@ func SpitSumInnerPaySubOrder(job Job, sumFunc SumFunc, tableRow interface{}) (fl
 
 		var columnName = selectStruct[1]
 	*/
-	columnName :=job.Select[5 : ]
+	columnName := job.Select[5:]
 	//转化为首字母大写
 	name := getColName(columnName)
 
