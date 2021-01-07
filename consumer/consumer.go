@@ -55,6 +55,10 @@ func doConsumer(params string) error {
 	rules := common.RedisGet(key)
 	fmt.Println(rules)
 	if rules == "" {
+		//找默认的规则
+		rules = common.RedisGet("RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10))
+	}
+	if rules == "" {
 		monitor.SendDingDingMessage(" 【redis里面key: RISK_FUMAOLI_SCENE_" + strconv.Itoa(SiteId) + " 对应缓存的规则集不能为空，请确认数据是否异常。】")
 		//fmt.Println(" RISK_FUMAOLI_SCENE_"+strconv.Itoa(SiteId)+ "redis里面缓存的规则集不能为空")
 		return nil

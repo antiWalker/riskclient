@@ -239,12 +239,13 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 			if isThisDataInvolved == false {
 				if BaseTime == "real_time" {
 					if strings.HasPrefix(columnStr, POLYMERIZESUM) {
-						key := columnStr[5:]
-						columnVal, ok := params[key]
-						if ok == false {
-							return nil, errors.New("riskEngine: " + key + " is not valid\n ")
-						}
-						executeNode.Value = res[0].result.(float64) + columnVal.(float64)
+						// todo	sum 支持单字段和原生
+						//key := columnStr[5:]
+						//columnVal, ok := params[key]
+						//if ok == false {
+						//	return nil, errors.New("riskEngine: " + key + " is not valid\n ")
+						//}
+						executeNode.Value = res[0].result.(int64)
 					} else if strings.HasPrefix(columnStr, POLYMERIZECOUNT) {
 						executeNode.Value = res[0].result.(int64) + 1
 					}

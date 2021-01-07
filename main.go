@@ -13,6 +13,7 @@ import (
 	"gitlaball.nicetuan.net/wangjingnan/golib/logrus-gsr/wrapper"
 	"os"
 	"os/signal"
+	"strconv"
 	"sync"
 	"syscall"
 )
@@ -99,11 +100,15 @@ func local() {
 	if err := json.Unmarshal([]byte(params), &raw); err != nil {
 		fmt.Println(err)
 	}
-	SiteId := "10587"
+	SiteId := "10589"
 	//通过子站id拼成子站场景key，然后拿着key从redis获取这个场景要过的的规则集合
 	key := "RISK_FUMAOLI_SCENE_" + string(SiteId)
 	rules = common.RedisGet(key)
 	fmt.Println(rules)
+	if rules == "" {
+		//找默认的规则
+		rules = common.RedisGet("RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10))
+	}
 	if rules == "" {
 		fmt.Println("redis里面缓存的规则集不能为空")
 		return

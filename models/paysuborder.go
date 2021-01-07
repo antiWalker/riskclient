@@ -12,11 +12,14 @@ import (
 
 //订单表结构
 type PaySubOrder struct {
-	Suborderid       int64 `orm:"column(suborderid);pk"` // 订单id
-	Merchandiseid    int64 `json:"merchandiseid"`        // 商品id
-	Orderstatus      int64 `json:"orderstatus"`          // 状态
-	Quantity         int64 `json:"quantity"`             // 数量
-	Suborderdateline int64 `json:"suborderdateline"`     // 时间
+	Suborderid       int64 `orm:"column(suborderid);pk"`                  // 订单id
+	Merchandiseid    int64 `json:"merchandiseid"`                         // 商品id
+	Orderstatus      int64 `json:"orderstatus"`                           // 状态
+	Quantity         int64 `json:"quantity"`                              // 数量
+	Suborderdateline int64 `json:"suborderdateline"`                      // 时间
+	Price            int64 `json:"price"`                                 // 价格
+	SupplyPrice      int64 `orm:"column(supplyprice)",json:"supplyprice"` // 成本价格
+	Total            int64 `orm:"-",json:"total"`                         // 毛利率
 }
 
 func (u *PaySubOrder) TableName() string {
@@ -116,9 +119,9 @@ func SpitSumInnerPaySubOrder(job Job, sumFunc SumFunc, tableRow interface{}) (fl
 
 	//提取字类型
 	dataType := getColumnDataType(tableRow, name)
-	if dataType == reflect.Invalid {
-		return 0, nil, errors.New("column " + columnName + " not allow sum")
-	}
+	//if dataType == reflect.Invalid {
+	//	return 0, nil, errors.New("column " + columnName + " not allow sum")
+	//}
 
 	var result = 0.0
 	var ids = make([]string, 0)
@@ -126,7 +129,7 @@ func SpitSumInnerPaySubOrder(job Job, sumFunc SumFunc, tableRow interface{}) (fl
 	//游标遍历条件命中的全量
 	for true {
 		o := orm.NewOrm()
-
+		o.Using("slave")
 		var ml []SalesOrder
 		qs := sumFunc(o)
 
