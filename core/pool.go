@@ -3,6 +3,7 @@ package core
 import (
 	"bigrisk/models"
 	"errors"
+	"gitlaball.nicetuan.net/wangjingnan/golib/gsr/log"
 	"strings"
 )
 
@@ -32,7 +33,7 @@ type MysqlEngine struct {
 }
 
 /*引擎查询统一入口*/
-func QueryJob(jobs []models.Job) ([]JobResult,bool) {
+func QueryJob(jobs []models.Job) ([]JobResult, bool) {
 
 	var engine Engine
 	var jobResults []JobResult
@@ -52,45 +53,45 @@ func QueryJob(jobs []models.Job) ([]JobResult,bool) {
 		//判断是否注册了这个表
 		if _, ok := models.RegStruct[job.Table]; ok {
 			go engine.query(job, ch)
-		}else{
-			return nil,false
+		} else {
+			return nil, false
 		}
 	}
 
 	for i := 0; i < jobNum; i++ {
 		jobResults = append(jobResults, <-ch)
 	}
-	return jobResults,true
+	return jobResults, true
 }
 
 // mysql引擎并发查询入口
 func (mysqlEngine MysqlEngine) query(job models.Job, result chan<- JobResult) {
 	defer func() {
 		if err := recover(); err != nil {
-			//log.Info("捕获到了panic产生的异常 ", err)
+			log.Info("捕获到了panic产生的异常 ", err)
 			var numDefaut int64
-			result <- JobResult{job.JobId, numDefaut, nil,errors.New("unknown field/column name")}
+			result <- JobResult{job.JobId, numDefaut, nil, errors.New("unknown field/column name")}
 			return
 		}
 	}()
 	selectStruct := strings.Split(job.Select, "::")
 
 	if len(selectStruct) != 2 {
-		result <- JobResult{job.JobId, 0, nil,errors.New("select format error")}
+		result <- JobResult{job.JobId, 0, nil, errors.New("select format error")}
 		return
 	}
 
 	var tableEngine models.TableEngine
 	/*
-	//路由数据表
-	if job.Table == models.TABLESALESORDER {
-		tableEngine = new(models.SalesOrder)
-	} else if job.Table == models.TABLESTRATEGYDICTIONARY {
-		tableEngine = new(models.StrategyDictionary)
-	} else {
-		result <- JobResult{job.JobId, 0, errors.New("table not exist")}
-		return
-	}
+		//路由数据表
+		if job.Table == models.TABLESALESORDER {
+			tableEngine = new(models.SalesOrder)
+		} else if job.Table == models.TABLESTRATEGYDICTIONARY {
+			tableEngine = new(models.StrategyDictionary)
+		} else {
+			result <- JobResult{job.JobId, 0, errors.New("table not exist")}
+			return
+		}
 	*/
 	//路由数据表
 	if job.Table != "" {
@@ -98,7 +99,7 @@ func (mysqlEngine MysqlEngine) query(job models.Job, result chan<- JobResult) {
 		if _, ok := models.RegStruct[key]; ok {
 			engineName := models.RegStruct[key]
 			tableEngine = engineName.(models.TableEngine)
-		}else{
+		} else {
 			result <- JobResult{job.JobId, 0, nil, errors.New("table not exist")}
 			return
 		}
@@ -110,11 +111,11 @@ func (mysqlEngine MysqlEngine) query(job models.Job, result chan<- JobResult) {
 	//路由聚合类型
 	if selectStruct[0] == POLYMERIZECOUNT {
 		num, detail, error := tableEngine.SpitCount(job)
-		result <- JobResult{job.JobId, num, detail,error}
+		result <- JobResult{job.JobId, num, detail, error}
 
 	} else if selectStruct[0] == POLYMERIZESUM {
 		num, detail, error := tableEngine.SpitSum(job)
-		result <- JobResult{job.JobId, num, detail,error}
+		result <- JobResult{job.JobId, num, detail, error}
 	} else {
 		result <- JobResult{job.JobId, 0, nil, errors.New("select type not support")}
 	}

@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/astaxie/beego/orm"
 	"github.com/sirupsen/logrus"
 	"gitlaball.nicetuan.net/wangjingnan/golib/gsr/log"
 	"gitlaball.nicetuan.net/wangjingnan/golib/logrus-gsr/wrapper"
@@ -19,7 +20,7 @@ import (
 //var logger log.Logger
 func init() {
 	logger := wrapper.NewLogger()
-	logger.Logrus.SetLevel(logrus.ErrorLevel)
+	logger.Logrus.SetLevel(logrus.InfoLevel)
 	log.SetLogger(logger)
 }
 
@@ -76,6 +77,7 @@ func prod() {
 }
 
 func main() {
+	orm.Debug = true
 	local()
 	//prod()
 }

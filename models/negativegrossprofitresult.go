@@ -80,6 +80,7 @@ func AddNegativeGrossProfitResult(params string, ruleId string) (int64, error) {
 		negativeGrossProfitResult.CreateTime = time.Now().Unix()
 		rule_Id, err := strconv.ParseInt(ruleId, 10, 64)
 		negativeGrossProfitResult.RuleId = rule_Id
+		o.Using("default")
 		id, err := o.Insert(&negativeGrossProfitResult)
 		if err != nil {
 			fmt.Println("insert err :", err)
