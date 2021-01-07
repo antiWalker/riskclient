@@ -46,7 +46,7 @@ func (c *complexNode) Execute(ctx context.Context, runStack *Stack, params map[s
 func ExecuteComplexNode(ctx context.Context, c *complexNode, runStack *Stack, params map[string]interface{}, reason *[]string) (interface{}, error) {
 	switch c.Type {
 	case operatorNodeType:
-		return ExecuteOperatorNode(ctx, c, runStack, params,reason)
+		return ExecuteOperatorNode(ctx, c, runStack, params, reason)
 	case queryNodeType:
 		return ExecuteQueryNode(ctx, c, runStack, params, reason)
 	case logicNodeType:
@@ -75,8 +75,8 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 
 		//log.Info("runStack", runStack,"runStack")
 		log.Info("runStack", &TraceContext{
-			TraceId:TraceId,
-			RunStack:runStack,
+			TraceId:  TraceId,
+			RunStack: runStack,
 		})
 		for _, tmpNode := range *runStack {
 			if tmpNode.(*simpleNode).Type == selectNodeType || tmpNode.(*simpleNode).Type == whereNodeType {
@@ -154,19 +154,19 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 
 						switch hourBefore {
 						case "24":
-							timeBegin = baseTime.Add(time.Hour * - 24)
+							timeBegin = baseTime.Add(time.Hour * -24)
 						case "168":
-							timeBegin = baseTime.Add(time.Hour * - 24 * 7)
+							timeBegin = baseTime.Add(time.Hour * -24 * 7)
 						case "360":
-							timeBegin = baseTime.Add(time.Hour * - 24 * 15)
+							timeBegin = baseTime.Add(time.Hour * -24 * 15)
 						case "720":
-							timeBegin = baseTime.Add(time.Hour * - 24 * 30)
+							timeBegin = baseTime.Add(time.Hour * -24 * 30)
 						default:
-							timeBegin = baseTime.Add(time.Hour * - 24 * 7)
+							timeBegin = baseTime.Add(time.Hour * -24 * 7)
 						}
 
-						wh = append(wh, models.Where{columnStr, opStr, timeBegin.Format("2006-01-02 15:04:05")})
-						wh = append(wh, models.Where{columnStr, "lte", timeEnd.Format("2006-01-02 15:04:05")})
+						wh = append(wh, models.Where{columnStr, opStr, strconv.FormatInt(timeBegin.Unix(), 10)})
+						wh = append(wh, models.Where{columnStr, "lte", strconv.FormatInt(timeEnd.Unix(), 10)})
 
 					} else {
 						if valueStr != "" {
@@ -213,17 +213,17 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 			mySQLStart := time.Now().UnixNano()
 
 			jobs = append(jobs, models.Job{1, string(c.Value), columnStr, tableStr, wh})
-			res,ok:= QueryJob(jobs)
+			res, ok := QueryJob(jobs)
 			//fmt.Println(res)
-			if !ok{
-				return nil,errors.New("riskEngine: not supported this type")
+			if !ok {
+				return nil, errors.New("riskEngine: not supported this type")
 			}
 			//mySQLElapsed := time.Since(mySQLStart)
 
 			//log.Debug("DetectHandler MySQL Query Cost Time: ", (time.Now().UnixNano()-mySQLStart)/1000,"costTime")
 			log.Debug("DetectHandler MySQL Query Cost Time: ", &TraceContext{
-				TraceId:TraceId,
-				CostTime:(time.Now().UnixNano()-mySQLStart)/1000,
+				TraceId:  TraceId,
+				CostTime: (time.Now().UnixNano() - mySQLStart) / 1000,
 			})
 			*reason = res[0].detail
 
@@ -239,14 +239,14 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 			if isThisDataInvolved == false {
 				if BaseTime == "real_time" {
 					if strings.HasPrefix(columnStr, POLYMERIZESUM) {
-						key :=columnStr[5 : ]
+						key := columnStr[5:]
 						columnVal, ok := params[key]
 						if ok == false {
-							return nil, errors.New("riskEngine: "+key+" is not valid\n ")
+							return nil, errors.New("riskEngine: " + key + " is not valid\n ")
 						}
-						executeNode.Value = res[0].result.(float64)+columnVal.(float64)
+						executeNode.Value = res[0].result.(float64) + columnVal.(float64)
 					} else if strings.HasPrefix(columnStr, POLYMERIZECOUNT) {
-						executeNode.Value = res[0].result.(int64)+1
+						executeNode.Value = res[0].result.(int64) + 1
 					}
 				} else {
 					executeNode.Value = res[0].result
@@ -258,10 +258,10 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 			//log.Info("executeNode", executeNode,"executeNode")
 			//log.Info("where", wh,"where")
 			log.Info("runStack", &TraceContext{
-				TraceId:TraceId,
-				RunStack:runStack,
-				ExecuteNode:executeNode,
-				Where:wh,
+				TraceId:     TraceId,
+				RunStack:    runStack,
+				ExecuteNode: executeNode,
+				Where:       wh,
 			})
 
 			return executeNode, nil
@@ -296,7 +296,7 @@ func ExecuteOperatorNode(ctx context.Context, c *complexNode, runStack *Stack, p
 		//fmt.Println(rr)
 		orderId = strconv.Itoa(rr)
 		mid := orderId.(string)
-		*reason = append(*reason,mid)
+		*reason = append(*reason, mid)
 		//key := changeField(opVar1.(*simpleNode).Value.(string))
 		key := opVar1.(*simpleNode).Value.(string)
 		valueStr, ok := params[key]
@@ -657,13 +657,13 @@ func ExecuteStringOperatorOp(op *complexNode, opVar1 *simpleNode, opVar2 *simple
 		case int:
 			opVar2.Value = strconv.Itoa(opVar2.Value.(int))
 		case int64:
-			opVar2.Value = strconv.FormatInt(opVar2.Value.(int64),10)
+			opVar2.Value = strconv.FormatInt(opVar2.Value.(int64), 10)
 		case int32:
-			opVar2.Value = strconv.FormatInt(opVar2.Value.(int64),10)
+			opVar2.Value = strconv.FormatInt(opVar2.Value.(int64), 10)
 		case int16:
-			opVar2.Value = strconv.FormatInt(opVar2.Value.(int64),10)
+			opVar2.Value = strconv.FormatInt(opVar2.Value.(int64), 10)
 		case int8:
-			opVar2.Value = strconv.FormatInt(opVar2.Value.(int64),10)
+			opVar2.Value = strconv.FormatInt(opVar2.Value.(int64), 10)
 		case float32, float64:
 			opVar2.Value = strconv.FormatFloat(opVar2.Value.(float64), 'f', -1, 64)
 		case string:
@@ -734,14 +734,14 @@ func Eval(rule []byte, params map[string]interface{}) (string, bool, []string, e
 	if conditionRule != nil {
 
 		log.Debug("conditionRule", &TraceContext{
-			TraceId:TraceId,
-			ConditionRule:conditionRule,
+			TraceId:       TraceId,
+			ConditionRule: conditionRule,
 		})
 		var conditionStack Stack
 
 		var conditionReason = make([]string, 0)
 
-		okCondition := conditionRule.Execute(ctx,&conditionStack, params, &conditionReason)
+		okCondition := conditionRule.Execute(ctx, &conditionStack, params, &conditionReason)
 
 		if okCondition != nil {
 			return sign, haveRisk, conditionReason, errors.New("riskEngine: eval condition rule failed\n" + okCondition.Error())
@@ -764,8 +764,8 @@ func Eval(rule []byte, params map[string]interface{}) (string, bool, []string, e
 
 	//log.Debug("matchRule", matchRule,"matchRule")
 	log.Debug("matchRule", &TraceContext{
-		TraceId:TraceId,
-		MatchRule:matchRule,
+		TraceId:   TraceId,
+		MatchRule: matchRule,
 	})
 	var matchStack Stack
 	ok1 := matchRule.Execute(ctx, &matchStack, params, &reason)
@@ -787,7 +787,7 @@ func Eval(rule []byte, params map[string]interface{}) (string, bool, []string, e
 	// if match the matchRule, then check if match the exceptionRule
 	if matchRisk == true && exceptionRule != nil {
 
-		log.Debug("exceptionRule", exceptionRule,"exceptionRule")
+		log.Debug("exceptionRule", exceptionRule, "exceptionRule")
 
 		var exceptionStack Stack
 
@@ -806,7 +806,7 @@ func Eval(rule []byte, params map[string]interface{}) (string, bool, []string, e
 			}
 			if exceptionRisk == true {
 				haveRisk = false
-			}else{
+			} else {
 				haveRisk = true
 			}
 		}
@@ -816,8 +816,8 @@ func Eval(rule []byte, params map[string]interface{}) (string, bool, []string, e
 
 	//log.Debug("DetectHandler Eval Cost Time: ", (time.Now().UnixNano()-evalStart)/1000,"costTime")
 	log.Debug("DetectHandler Eval Cost Time: ", &TraceContext{
-		TraceId:TraceId,
-		CostTime:(time.Now().UnixNano()-evalStart)/1000,
+		TraceId:  TraceId,
+		CostTime: (time.Now().UnixNano() - evalStart) / 1000,
 	})
 	return sign, haveRisk, reason, nil
 }
