@@ -28,7 +28,7 @@
         "value": "mysql",
         "children": [{
           "type": "select",
-          "value": "paysuborder|sum::(price-supplyprice)*quantity"
+          "value": "paysuborder|sum::native:(price-supplyprice)*quantity"
         }, {
           "type": "where",
           "value": "merchandiseid|eq|$merchandiseId"

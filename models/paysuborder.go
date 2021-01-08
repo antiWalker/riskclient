@@ -7,6 +7,7 @@ import (
 	"github.com/astaxie/beego/orm"
 	_ "gitlaball.nicetuan.net/wangjingnan/golib/register-golang/db/orm"
 	"reflect"
+	"strings"
 )
 
 /*-------paysuborder---------*/
@@ -44,6 +45,9 @@ func (paySubOrder PaySubOrder) SpitSum(job Job) (int64, []string, error) {
 		qs := o.QueryTable(new(PaySubOrder))
 
 		return qs
+	}
+	if strings.Contains(job.Select, "native") {
+		return SpitSumInnerPaySubOrderNative(job, v, paySubOrder)
 	}
 	return SpitSumInnerPaySubOrder(job, v, paySubOrder)
 }
@@ -138,10 +142,10 @@ func SpitSumInnerPaySubOrder(job Job, sumFunc SumFunc, tableRow interface{}) (in
 	return result, ids, nil
 }
 
-func SpitSumInnerPaySubOrderBak(job Job, sumFunc SumFunc, tableRow interface{}) (int64, []string, error) {
-
-	columnName := job.Select[5:]
-
+func SpitSumInnerPaySubOrderNative(job Job, sumFunc SumFunc, tableRow interface{}) (int64, []string, error) {
+	fmt.Println("原生拼接sql语句")
+	condition := job.Select[5:]
+	columnName := strings.ReplaceAll(condition, "native:", "")
 	var whereCondition bytes.Buffer
 	whereCondition.WriteString("1=1 ")
 	for _, where := range job.Where {
@@ -157,7 +161,7 @@ func SpitSumInnerPaySubOrderBak(job Job, sumFunc SumFunc, tableRow interface{}) 
 		}
 	}
 	fmt.Println(whereCondition.String())
-	//var result = 0.0
+
 	o := orm.NewOrm()
 	o.Using("slave")
 
@@ -171,27 +175,5 @@ func SpitSumInnerPaySubOrderBak(job Job, sumFunc SumFunc, tableRow interface{}) 
 	} else {
 		fmt.Println(err)
 	}
-
-	//游标遍历条件命中的全量
-	//for true {
-	//	o := orm.NewOrm()
-	//	var ml []PaySubOrder
-	//	qs := sumFunc(o)
-	//	qs = filterMerge(qs, job)
-	//
-	//	if len(ml) > 0 {
-	//		for _, atom := range ml {
-	//
-	//			value := getCol(atom, name)
-	//			//累加
-	//			result += getNumber(dataType, value)
-	//
-	//			ids = append(ids, strconv.FormatInt(atom.Suborderid, 10))
-	//
-	//		}
-	//	} else {
-	//		break
-	//	}
-	//}
 	return res.Total, nil, nil
 }
