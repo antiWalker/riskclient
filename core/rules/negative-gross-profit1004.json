@@ -42,7 +42,7 @@
                 "children": [
                   {
                     "type": "select",
-                    "value": "paysuborder|count::quantity"
+                    "value": "paysuborder|sum::quantity"
                   },
                   {
                     "type": "where",

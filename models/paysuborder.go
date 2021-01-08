@@ -104,7 +104,41 @@ func SplitCountInnerPaySubOrder(job Job, countFunc CountFunc, tableRow interface
 	return int64(len(result)), ids, nil
 }
 
+//单字段sum
 func SpitSumInnerPaySubOrder(job Job, sumFunc SumFunc, tableRow interface{}) (int64, []string, error) {
+	columnName := job.Select[5:]
+	//转化为首字母大写
+	name := getColName(columnName)
+	//提取字类型
+	dataType := getColumnDataType(tableRow, name)
+	if dataType == reflect.Invalid {
+		return 0, nil, errors.New("column " + columnName + " not allow sum")
+	}
+	var result int64 = 0
+	var ids = make([]string, 0)
+	//游标遍历条件命中的全量
+	o := orm.NewOrm()
+	o.Using("slave")
+
+	var ml []PaySubOrder
+	qs := sumFunc(o)
+
+	qs = filterMerge(qs, job)
+	qs.Limit(-1)
+	qs.All(&ml)
+
+	if len(ml) > 0 {
+		for _, atom := range ml {
+			value := getCol(atom, name)
+			//累加
+			result += value.(int64)
+		}
+	}
+	fmt.Println("result:", result)
+	return result, ids, nil
+}
+
+func SpitSumInnerPaySubOrderBak(job Job, sumFunc SumFunc, tableRow interface{}) (int64, []string, error) {
 
 	columnName := job.Select[5:]
 
