@@ -46,7 +46,7 @@ func (paySubOrder PaySubOrder) SpitSum(job Job) (int64, []string, error) {
 
 		return qs
 	}
-	if strings.Contains(job.Select, "native") {
+	if strings.Contains(job.Select, "###") {
 		return SpitSumInnerPaySubOrderNative(job, v, paySubOrder)
 	}
 	return SpitSumInnerPaySubOrder(job, v, paySubOrder)
@@ -145,7 +145,7 @@ func SpitSumInnerPaySubOrder(job Job, sumFunc SumFunc, tableRow interface{}) (in
 func SpitSumInnerPaySubOrderNative(job Job, sumFunc SumFunc, tableRow interface{}) (int64, []string, error) {
 	fmt.Println("原生拼接sql语句")
 	condition := job.Select[5:]
-	columnName := strings.ReplaceAll(condition, "native:", "")
+	columnName := strings.ReplaceAll(condition, "###:", "")
 	var whereCondition bytes.Buffer
 	whereCondition.WriteString("1=1 ")
 	for _, where := range job.Where {
