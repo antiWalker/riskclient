@@ -17,7 +17,7 @@ type NegativeGrossProfitResult struct {
 	CreateTime      int64
 	UpdateTime      int64
 	OrderId         int
-	OrderTime       int
+	OrderTime       int64
 	SubOrderId      int
 	UserId          int
 	MerchandiseId   int
@@ -55,7 +55,7 @@ type Order struct {
 	SiteId           int    `json:"siteId"`
 	SubOrderId       int    `json:"subOrderId"`
 	SupplyPrice      int    `json:"supplyPrice"`
-	Ts               int    `json:"ts"`
+	Ts               int64  `json:"ts"`
 	Tss              string `json:"tss"`
 	UserId           int    `json:"userId"`
 	WarehouseId      int    `json:"warehouseId"`
