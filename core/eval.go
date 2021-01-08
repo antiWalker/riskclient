@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
 	"strconv"
 	"strings"
@@ -559,7 +560,8 @@ func ExecuteNumberOperatorOp(op *complexNode, opVar1 *simpleNode, opVar2 *simple
 		return opVar2.Value.(int64) - opVar1.Value.(int64), nil
 	}
 	doIntegerMultiply := func(opVar1 *simpleNode, opVar2 *simpleNode) (int64, error) {
-		return opVar2.Value.(int64) * opVar1.Value.(int64), nil
+		//强制转换到int64类型
+		return opVar2.Value.(int64) * int64(opVar1.Value.(float64)*math.Pow10(0)), nil
 	}
 	doIntegerDiverse := func(opVar1 *simpleNode, opVar2 *simpleNode) (float64, error) {
 		if opVar1.Value.(int64) == 0 {
@@ -606,7 +608,7 @@ func ExecuteNumberOperatorOp(op *complexNode, opVar1 *simpleNode, opVar2 *simple
 			executeNode.Value, err = doMinus(opVar1, opVar2)
 		}
 	case numberMultiply:
-		if opVar1.Type == integerNodeType {
+		if opVar1.Type == integerNodeType || opVar1.Type == numberNodeType {
 			executeNode.Value, err = doIntegerMultiply(opVar1, opVar2)
 			executeNode.Type = integerNodeType
 		} else {

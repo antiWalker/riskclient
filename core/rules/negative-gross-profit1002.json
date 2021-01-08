@@ -42,7 +42,7 @@
               },
               {
                 "type": "where",
-                "value": "merchandiseid|eq|$merchandiseid"
+                "value": "merchandiseid|eq|$merchandiseId"
               },
               {
                 "type": "where",
