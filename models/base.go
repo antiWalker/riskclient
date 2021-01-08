@@ -16,17 +16,26 @@ var Operate = map[string]string{
 	"in":  "in",
 }
 
+var OperateNative = map[string]string{
+	"eq":  "=",
+	"gt":  ">",
+	"gte": ">=",
+	"lt":  "<",
+	"lte": "<=",
+	"in":  "in",
+}
+
 //支持表
 const (
 	TABLESALESORDER                    = "t_risk_engine_sales_order"
 	TABLEHOTELORDER                    = "t_risk_engine_hotel_order"
 	TABLERISKNEGATIVEGROSSPROFITRESULT = "risk_negative_gross_profit_result"
-	TABLEPAYSUBORDER = "paysuborder"
+	TABLEPAYSUBORDER                   = "paysuborder"
 )
 
 type TableEngine interface {
 	SpitCount(job Job) (int64, []string, error)
-	SpitSum(job Job) (float64, []string, error)
+	SpitSum(job Job) (int64, []string, error)
 }
 
 var RegStruct = make(map[string]interface{})
