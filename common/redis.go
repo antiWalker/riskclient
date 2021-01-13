@@ -24,6 +24,7 @@ func getRedisInstance() *redis.Client {
 		panic(errDb)
 	}
 	redisHost := databaseConf.String("redisHost")
+	redisPass := databaseConf.String("redisPass")
 	if RedisCli != nil {
 		_, err := RedisCli.Ping().Result()
 		if err == nil {
@@ -37,9 +38,9 @@ func getRedisInstance() *redis.Client {
 	} else {
 		RedisAddr = redisHost
 	}
-
 	RedisCli = redis.NewClient(&redis.Options{
 		Addr:         RedisAddr,
+		Password:     redisPass,
 		DB:           5,
 		DialTimeout:  10 * time.Second,
 		ReadTimeout:  30 * time.Second,
