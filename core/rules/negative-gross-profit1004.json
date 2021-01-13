@@ -58,7 +58,7 @@
                   },
                   {
                     "type": "where",
-                    "value": "price|lt|supplyPrice"
+                    "value": "price|lt|$supplyPrice"
                   }
                 ]
               },
