@@ -4,6 +4,7 @@ import (
 	"bigrisk/common"
 	"bigrisk/control"
 	"bigrisk/core"
+	"bigrisk/monitor"
 	"encoding/json"
 	"fmt"
 	"sync"
@@ -143,7 +144,9 @@ func DetectHandler(params string, rules string) (resultType, error) {
 
 	for value := range detectChannel {
 		if value.errorInfo != nil {
-			//fmt.Println(value.errorInfo)
+			fmt.Println(value.errorInfo)
+			monitor.SendDingDingMessage(" :" + value.errorInfo.Error())
+
 			//_ = sendResult(w, errnoDetectFailed, value.errorInfo.Error())
 			//return false,value.errorInfo
 			//return makeResult(errnoInvalidDetectParams,nil),nil
