@@ -55,6 +55,10 @@
                   {
                     "type": "where",
                     "value": "suborderdateline|gt|T24"
+                  },
+                  {
+                    "type": "where",
+                    "value": "price|lt|supplyPrice"
                   }
                 ]
               },
