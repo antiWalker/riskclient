@@ -674,8 +674,7 @@ func ExecuteStringOperatorOp(op *complexNode, opVar1 *simpleNode, opVar2 *simple
 		}
 
 		for _, value := range whereArr {
-
-			if opVar2.Value == value {
+			if strings.EqualFold(opVar2.Value.(string), value) {
 				inWordList = true
 			}
 		}
@@ -765,6 +764,38 @@ func Eval(rule []byte, params map[string]interface{}) (string, bool, []string, e
 		}
 	}
 
+	// check the exceptionRule
+	if exceptionRule != nil {
+
+		log.Debug("exceptionRule", exceptionRule, "exceptionRule")
+
+		var exceptionStack Stack
+
+		var exceptionReason = make([]string, 0)
+
+		ok2 := exceptionRule.Execute(ctx, &exceptionStack, params, &exceptionReason)
+
+		if ok2 != nil {
+			return sign, haveRisk, exceptionReason, errors.New("riskEngine: eval exception rule failed" + ok2.Error())
+		}
+		var exceptionRisk = true
+		if exceptionStack.Len() > 0 {
+			for _, el := range exceptionStack {
+				//都为true  则命中白名单
+				if exceptionRisk && el.(*simpleNode).Value.(bool) {
+					exceptionRisk = true
+				} else {
+					exceptionRisk = false
+					break
+				}
+			}
+		}
+		//命中白名单，则不继续执行match规则
+		if exceptionRisk == true {
+			return sign, haveRisk, exceptionReason, nil
+		}
+	}
+
 	//log.Debug("matchRule", matchRule,"matchRule")
 	log.Debug("matchRule", &TraceContext{
 		TraceId:   TraceId,
@@ -786,37 +817,7 @@ func Eval(rule []byte, params map[string]interface{}) (string, bool, []string, e
 	for _, el := range matchStack {
 		matchRisk = matchRisk && el.(*simpleNode).Value.(bool)
 	}
-
-	// if match the matchRule, then check if match the exceptionRule
-	if matchRisk == true && exceptionRule != nil {
-
-		log.Debug("exceptionRule", exceptionRule, "exceptionRule")
-
-		var exceptionStack Stack
-
-		var exceptionReason = make([]string, 0)
-
-		ok2 := exceptionRule.Execute(ctx, &exceptionStack, params, &exceptionReason)
-
-		if ok2 != nil {
-			return sign, haveRisk, exceptionReason, errors.New("riskEngine: eval exception rule failed" + ok2.Error())
-		}
-
-		if exceptionStack.Len() > 0 {
-			var exceptionRisk = true
-			for _, el := range exceptionStack {
-				exceptionRisk = exceptionRisk && el.(*simpleNode).Value.(bool)
-			}
-			if exceptionRisk == true {
-				haveRisk = false
-			} else {
-				haveRisk = true
-			}
-		}
-	} else {
-		haveRisk = matchRisk
-	}
-
+	haveRisk = matchRisk
 	//log.Debug("DetectHandler Eval Cost Time: ", (time.Now().UnixNano()-evalStart)/1000,"costTime")
 	log.Debug("DetectHandler Eval Cost Time: ", &TraceContext{
 		TraceId:  TraceId,
