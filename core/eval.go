@@ -61,7 +61,7 @@ func ExecuteComplexNode(ctx context.Context, c *complexNode, runStack *Stack, pa
 func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, params map[string]interface{}, reason *[]string) (interface{}, error) {
 	var TraceId string
 	if v := ctx.Value("TraceId"); v != nil {
-		TraceId = v.(string)
+		TraceId = strconv.Itoa(v.(int))
 	}
 	switch c.Value {
 	case queryMySQL:
@@ -705,11 +705,11 @@ func ExecuteStringOperatorOp(op *complexNode, opVar1 *simpleNode, opVar2 *simple
 }
 
 // Eval the rule
-func Eval(rule []byte, params map[string]interface{}) (string, bool, []string, error) {
+func Eval(rule []byte, params map[string]interface{}, context context.Context) (string, bool, []string, error) {
 
 	var haveRisk = false
 	var TraceId string
-	var ctx = context.TODO()
+	var ctx = context
 
 	var reason = make([]string, 0)
 

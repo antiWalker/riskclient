@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -394,7 +395,7 @@ func tryConstructNode(m map[string]interface{}) (interface{}, error) {
 func constructNodeFromString(ctx context.Context, ruleStr []byte) (*cookedRuleType, error) {
 	var TraceId string
 	if v := ctx.Value("TraceId"); v != nil {
-		TraceId = v.(string)
+		TraceId = strconv.Itoa(v.(int))
 	}
 	compileStart := time.Now().UnixNano()
 
@@ -455,8 +456,8 @@ func constructNodeFromString(ctx context.Context, ruleStr []byte) (*cookedRuleTy
 
 	//log.Debug("DetectHandler Compile Cost Time: ", (time.Now().UnixNano()-compileStart)/1000,"costTime")
 	log.Info("Wrapper Cost Time: ", &TraceContext{
-		TraceId:TraceId,
-		CostTime:(time.Now().UnixNano()-compileStart)/1000,
+		TraceId:  TraceId,
+		CostTime: (time.Now().UnixNano() - compileStart) / 1000,
 	})
 
 	return cooked, nil

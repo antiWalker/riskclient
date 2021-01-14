@@ -11,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"gitlaball.nicetuan.net/wangjingnan/golib/gsr/log"
 	"gitlaball.nicetuan.net/wangjingnan/golib/logrus-gsr/wrapper"
+	"io"
 	"os"
 	"os/signal"
 	"strconv"
@@ -20,8 +21,13 @@ import (
 
 //var logger log.Logger
 func init() {
+	file, _ := os.OpenFile("riskclient.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	writers := []io.Writer{file, os.Stdout}
+	//同时写文件和屏幕
+	fileAndStdoutWriter := io.MultiWriter(writers...)
 	logger := wrapper.NewLogger()
 	logger.Logrus.SetLevel(logrus.InfoLevel)
+	logger.Logrus.SetOutput(fileAndStdoutWriter)
 	log.SetLogger(logger)
 }
 
@@ -79,8 +85,8 @@ func prod() {
 
 func main() {
 	orm.Debug = true
-	//local()
-	prod()
+	local()
+	//prod()
 }
 
 func local() {
@@ -91,20 +97,23 @@ func local() {
 		UserId     json.Number `json:"userId"`
 		SiteId     json.Number `json:"siteId"`
 	}
+	ctx, _ := context.WithCancel(context.Background())
 	// 从kafka取params然后从redis去取rules。然后调用风控引擎模块。
 	var params string
 	var rules string
 	//从kafka获取的order data
-	params = "{\n\t\"businessAreaId\": 671,\n\t\"couponMoney\": 0,\n\t\"grouponId\": 98383,\n\t\"isNewOrder\": 0,\n\t\"mainSiteCityId\": 107,\n\t\"mainSiteCityName\": \"沈阳市\",\n\t\"mainSiteId\": 10386,\n\t\"mainSiteName\": \"沈阳市\",\n\t\"merchandiseAbbr\": \"正大 熘肉段\",\n\t\"merchandiseId\": 797011,\n\t\"merchandiseName\": \"正大 熘肉段320g\",\n\t\"merchandisePrice\": 690,\n\t\"orderId\": 450336553706083850,\n\t\"orderStatus\": 5,\n\t\"partnerId\": 271674,\n\t\"price\": 60,\n\t\"quantity\": 1,\n\t\"rebateAmount\": 69,\n\t\"siteCityId\": 107,\n\t\"siteCityName\": \"沈阳市\",\n\t\"siteId\": 10030,\n\t\"siteName\": \"沈阳市（子站）\",\n\t\"subOrderId\": 450336553706083851,\n\t\"supplyPrice\": 1523,\n\t\"ts\": 1608885401000,\n\t\"tss\": \"2020-12-25 16:36:41\",\n\t\"userId\": 118979605,\n\t\"warehouseId\": 990\n}"
+	params = "{\n\t\"businessAreaId\": 671,\n\t\"couponMoney\": 0,\n\t\"grouponId\": 98383,\n\t\"isNewOrder\": 0,\n\t\"mainSiteCityId\": 107,\n\t\"mainSiteCityName\": \"沈阳市\",\n\t\"mainSiteId\": 10386,\n\t\"mainSiteName\": \"沈阳市\",\n\t\"merchandiseAbbr\": \"正大 熘肉段\",\n\t\"merchandiseId\": 807950,\n\t\"merchandiseName\": \"正大 熘肉段320g\",\n\t\"merchandisePrice\": 690,\n\t\"orderId\": 450336553706083850,\n\t\"orderStatus\": 5,\n\t\"partnerId\": 271674,\n\t\"price\": 60,\n\t\"quantity\": 1,\n\t\"rebateAmount\": 69,\n\t\"siteCityId\": 107,\n\t\"siteCityName\": \"沈阳市\",\n\t\"siteId\": 10030,\n\t\"siteName\": \"沈阳市（子站）\",\n\t\"subOrderId\": 450336553706083851,\n\t\"supplyPrice\": 1523,\n\t\"ts\": 1608885401000,\n\t\"tss\": \"2020-12-25 16:36:41\",\n\t\"userId\": 118979605,\n\t\"warehouseId\": 990\n}"
+
 	var raw = new(OrderInfo)
 	if err := json.Unmarshal([]byte(params), &raw); err != nil {
 		fmt.Println(err)
 	}
-	SiteId := "10590"
+	SiteId := "0"
 	//通过子站id拼成子站场景key，然后拿着key从redis获取这个场景要过的的规则集合
 	key := "RISK_FUMAOLI_SCENE_" + string(SiteId)
 	rules = common.RedisGet(key)
-	fmt.Println(rules)
+	i, _ := raw.SubOrderId.Int64()
+	ctx = context.WithValue(ctx, "TraceId", int(i))
 	if rules == "" {
 		//找默认的规则
 		rules = common.RedisGet("RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10))
@@ -113,7 +122,8 @@ func local() {
 		fmt.Println("redis里面缓存的规则集不能为空")
 		return
 	}
-	hit, _ := handlers.DetectHandler(params, rules)
+
+	hit, _ := handlers.DetectHandler(params, rules, ctx)
 	//解析结果
 	Errno := hit.Errno
 	if Errno == 0 {
@@ -122,15 +132,12 @@ func local() {
 		HitList := HRes.StrategyList
 		//命中后再做log到db的操作。
 		if IsHit == true {
-			fmt.Println("命中了，命中了。")
-			fmt.Println("{SubOrderId is : " + raw.SubOrderId)
-			fmt.Println("{UserId     is : " + raw.UserId)
+			log.Info("命中了，命中了。", HitList, "{SubOrderId is : "+raw.SubOrderId, "{UserId     is : "+raw.UserId)
 			//SubOrderId,_ := raw.SubOrderId.Int64()
 			//UserId ,_    := raw.UserId.Int64()
-			fmt.Println(HitList)
 			insertToDb(params, HitList)
 		} else {
-			fmt.Println("这个订单未命中任何策略。")
+			log.Info("这个订单未命中任何策略。")
 		}
 	} else {
 		//解析出错钉钉群报警

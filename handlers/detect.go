@@ -5,8 +5,10 @@ import (
 	"bigrisk/control"
 	"bigrisk/core"
 	"bigrisk/monitor"
+	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"sync"
 	"time"
 
@@ -42,8 +44,8 @@ type StrategyResult struct {
 /// 风控检测函数
 /// data => false 表示没有风险
 /// data => true  表示有风险
-func DetectHandler(params string, rules string) (resultType, error) {
-	var TraceId string
+func DetectHandler(params string, rules string, context context.Context) (resultType, error) {
+	var TraceId = strconv.Itoa(context.Value("TraceId").(int))
 
 	//fmt.Println("key not found:", k)
 	start := time.Now().UnixNano()
@@ -110,7 +112,7 @@ func DetectHandler(params string, rules string) (resultType, error) {
 			var thisDetectChannel DetectChannel
 
 			// do detect
-			if ruleSign, haveRisk, riskReason, err := control.RiskDetect(ruleBytes, data.(map[string]interface{})); err == nil {
+			if ruleSign, haveRisk, riskReason, err := control.RiskDetect(ruleBytes, data.(map[string]interface{}), context); err == nil {
 				thisDetectChannel.ruleSign = ruleSign
 				thisDetectChannel.haveRisk = haveRisk
 				thisDetectChannel.riskReason = riskReason

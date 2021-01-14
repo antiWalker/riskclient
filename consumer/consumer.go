@@ -5,9 +5,11 @@ import (
 	"bigrisk/handlers"
 	"bigrisk/models"
 	"bigrisk/monitor"
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/Shopify/sarama"
+	"gitlaball.nicetuan.net/wangjingnan/golib/gsr/log"
 	"strconv"
 )
 
@@ -53,7 +55,6 @@ func doConsumer(params string) error {
 	//通过子站id拼成子站场景key，然后拿着key从redis获取这个场景要过的的规则集合
 	key := "RISK_FUMAOLI_SCENE_" + strconv.Itoa(SiteId)
 	rules := common.RedisGet(key)
-	fmt.Println(rules)
 	if rules == "" {
 		//找默认的规则
 		rules = common.RedisGet("RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10))
@@ -63,7 +64,10 @@ func doConsumer(params string) error {
 		//fmt.Println(" RISK_FUMAOLI_SCENE_"+strconv.Itoa(SiteId)+ "redis里面缓存的规则集不能为空")
 		return nil
 	}
-	hit, _ := handlers.DetectHandler(params, rules)
+	ctx, _ := context.WithCancel(context.Background())
+
+	ctx = context.WithValue(ctx, "TraceId", raw.SubOrderId)
+	hit, _ := handlers.DetectHandler(params, rules, ctx)
 	//解析结果
 	Errno := hit.Errno
 	if Errno == 0 {
@@ -72,11 +76,8 @@ func doConsumer(params string) error {
 		HitList := HRes.StrategyList
 		//命中后再做log到db的操作。
 		if IsHit == true {
-			fmt.Println("SubOrderId is : ", raw.SubOrderId)
-			fmt.Println("UserId     is : ", raw.UserId)
-			//SubOrderId,_ := raw.SubOrderId.Int64()
-			//UserId ,_    := raw.UserId.Int64()
-			fmt.Println(HitList)
+
+			log.Info("命中了，命中了。", HitList, "{SubOrderId is : ", raw.SubOrderId, "{UserId     is : ", raw.UserId)
 			InsertToDb(params, HitList)
 		}
 	} else {
