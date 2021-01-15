@@ -83,7 +83,13 @@ func AddNegativeGrossProfitResult(params string, ruleId string) (int64, error) {
 		negativeGrossProfitResult.SupplierPrice = order.SupplyPrice
 		negativeGrossProfitResult.PartnerId = order.PartnerId
 		negativeGrossProfitResult.Quantity = order.Quantity
-		negativeGrossProfitResult.OrderTime = order.Ts
+
+		if order.Ts > 0 && len(strconv.FormatInt(order.Ts, 10)) == 13 {
+			negativeGrossProfitResult.OrderTime = order.Ts / 1000
+		} else {
+			negativeGrossProfitResult.OrderTime = order.Ts
+		}
+
 		negativeGrossProfitResult.CreateTime = time.Now().Unix()
 		rule_Id, err := strconv.ParseInt(ruleId, 10, 64)
 		negativeGrossProfitResult.RuleId = rule_Id
