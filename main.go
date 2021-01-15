@@ -21,7 +21,7 @@ import (
 
 //var logger log.Logger
 func init() {
-	file, _ := os.OpenFile("riskclient.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	file, _ := os.OpenFile("info.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	writers := []io.Writer{file, os.Stdout}
 	//同时写文件和屏幕
 	fileAndStdoutWriter := io.MultiWriter(writers...)
@@ -85,8 +85,8 @@ func prod() {
 
 func main() {
 	orm.Debug = true
-	local()
-	//prod()
+	//local()
+	prod()
 }
 
 func local() {
