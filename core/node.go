@@ -1,6 +1,7 @@
 package core
 
 import (
+	"bigrisk/common"
 	"context"
 	"encoding/json"
 	"errors"
@@ -9,8 +10,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"gitlaball.nicetuan.net/wangjingnan/golib/gsr/log"
 )
 
 // 节点类型
@@ -455,7 +454,7 @@ func constructNodeFromString(ctx context.Context, ruleStr []byte) (*cookedRuleTy
 	//compileElapsed := time.Since(compileStart)
 
 	//log.Debug("DetectHandler Compile Cost Time: ", (time.Now().UnixNano()-compileStart)/1000,"costTime")
-	log.Info("Wrapper Cost Time: ", &TraceContext{
+	common.InfoLogger.Info("Wrapper Cost Time: ", &TraceContext{
 		TraceId:  TraceId,
 		CostTime: (time.Now().UnixNano() - compileStart) / 1000,
 	})

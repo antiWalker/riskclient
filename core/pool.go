@@ -1,9 +1,9 @@
 package core
 
 import (
+	"bigrisk/common"
 	"bigrisk/models"
 	"errors"
-	"gitlaball.nicetuan.net/wangjingnan/golib/gsr/log"
 	"strings"
 )
 
@@ -68,7 +68,7 @@ func QueryJob(jobs []models.Job) ([]JobResult, bool) {
 func (mysqlEngine MysqlEngine) query(job models.Job, result chan<- JobResult) {
 	defer func() {
 		if err := recover(); err != nil {
-			log.Info("捕获到了panic产生的异常 ", err)
+			common.ErrorLogger.Info("捕获到了panic产生的异常 ", err)
 			var numDefaut int64
 			result <- JobResult{job.JobId, numDefaut, nil, errors.New("unknown field/column name")}
 			return

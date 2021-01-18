@@ -1,24 +1,22 @@
 package handlers
 
 import (
+	"bigrisk/common"
 	"context"
 	"encoding/json"
 	"net/http"
 	"reflect"
 	"time"
-
-	"gitlaball.nicetuan.net/wangjingnan/golib/gsr/log"
 )
 
 // args is a point to `Type`
-type wrapperHandler = func(ctx context.Context,response http.ResponseWriter, args interface{}) error
+type wrapperHandler = func(ctx context.Context, response http.ResponseWriter, args interface{}) error
 
 type TimeContext struct {
-	CostTime int64 `json:"costTime,omitempty"`
-	TraceId string `json:"trace_id"`
-	Params  *DetectFormV2 `json:"params,omitempty"`
+	CostTime int64         `json:"costTime,omitempty"`
+	TraceId  string        `json:"trace_id"`
+	Params   *DetectFormV2 `json:"params,omitempty"`
 }
-
 
 // WARNING:--------------------------------------------------
 // args is a Plain struct data [not pointer]
@@ -62,9 +60,6 @@ func Wrapper(args interface{}, handler wrapperHandler) func(w http.ResponseWrite
 
 				func() error {
 					err = json.Unmarshal(bytes, data)
-
-					//log.Info("form-data", data)
-
 					return err
 				})
 		}
@@ -75,19 +70,18 @@ func Wrapper(args interface{}, handler wrapperHandler) func(w http.ResponseWrite
 			return
 		}
 		TraceId := r.Header.Get("TRACE_ID")
-		ctx := context.WithValue(context.Background(), "TraceId" , TraceId)
+		ctx := context.WithValue(context.Background(), "TraceId", TraceId)
 		// do process request
 		// may process error or record time
 		if err := handler(ctx, w, data); err != nil {
-			log.Error(err.Error())
+			common.ErrorLogger.Error(err.Error())
 		}
 
 		//request_id
 
-		//log.Info("traceId", TraceId,"traceId")
-		log.Info("Wrapper Cost Time: ", &TimeContext{
-			TraceId:TraceId,
-			CostTime:(time.Now().UnixNano()-start)/1000,
+		common.InfoLogger.Info("Wrapper Cost Time: ", &TimeContext{
+			TraceId:  TraceId,
+			CostTime: (time.Now().UnixNano() - start) / 1000,
 		})
 	}
 }

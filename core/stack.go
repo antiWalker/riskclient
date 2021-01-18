@@ -1,8 +1,8 @@
 package core
 
 import (
+	"bigrisk/common"
 	"errors"
-	"gitlaball.nicetuan.net/wangjingnan/golib/gsr/log"
 )
 
 // Stack Type
@@ -47,7 +47,7 @@ func (stack *Stack) Top() (interface{}, error) {
 		return nil, errors.New("Get top of Stack Out of index, len is 0")
 	}
 
-	log.Info("Top Of Stack", (*stack)[len(*stack)-1])
+	common.InfoLogger.Info("Top Of Stack", (*stack)[len(*stack)-1])
 
 	return (*stack)[len(*stack)-1], nil
 }

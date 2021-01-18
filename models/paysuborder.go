@@ -1,9 +1,9 @@
 package models
 
 import (
+	"bigrisk/common"
 	"bytes"
 	"errors"
-	"fmt"
 	"github.com/astaxie/beego/orm"
 	_ "gitlaball.nicetuan.net/wangjingnan/golib/register-golang/db/orm"
 	"reflect"
@@ -68,7 +68,6 @@ func SplitCountInnerPaySubOrder(job Job, countFunc CountFunc, tableRow interface
 	//提取字类型
 	dataType := getColumnDataType(tableRow, name)
 	if dataType == reflect.Invalid {
-		fmt.Println("column " + columnName + " not allow count")
 		return 0, nil, errors.New("column " + columnName + " not allow count")
 	}
 
@@ -138,12 +137,10 @@ func SpitSumInnerPaySubOrder(job Job, sumFunc SumFunc, tableRow interface{}) (in
 			result += value.(int64)
 		}
 	}
-	fmt.Println("result:", result)
 	return result, ids, nil
 }
 
 func SpitSumInnerPaySubOrderNative(job Job, sumFunc SumFunc, tableRow interface{}) (int64, []string, error) {
-	fmt.Println("原生拼接sql语句")
 	condition := job.Select[5:]
 	columnName := strings.ReplaceAll(condition, "###:", "")
 	var whereCondition bytes.Buffer
@@ -160,7 +157,6 @@ func SpitSumInnerPaySubOrderNative(job Job, sumFunc SumFunc, tableRow interface{
 			whereCondition.WriteString(where.Column + " " + operate + where.Value)
 		}
 	}
-	fmt.Println(whereCondition.String())
 
 	o := orm.NewOrm()
 	o.Using("slave")
@@ -170,10 +166,8 @@ func SpitSumInnerPaySubOrderNative(job Job, sumFunc SumFunc, tableRow interface{
 	}
 	var res Result
 	err := o.Raw("SELECT sum(" + columnName + ") as total FROM " + job.Table + " where " + whereCondition.String() + " ").QueryRow(&res)
-	if err == nil {
-		fmt.Println("mysql row affected nums: ", res)
-	} else {
-		fmt.Println(err)
+	if err != nil {
+		common.ErrorLogger.Infof("err : %v ", err)
 	}
 	return res.Total, nil, nil
 }

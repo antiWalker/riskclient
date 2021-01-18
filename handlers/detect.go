@@ -7,12 +7,9 @@ import (
 	"bigrisk/monitor"
 	"context"
 	"encoding/json"
-	"fmt"
 	"strconv"
 	"sync"
 	"time"
-
-	"gitlaball.nicetuan.net/wangjingnan/golib/gsr/log"
 )
 
 /// 检测参数
@@ -54,7 +51,6 @@ func DetectHandler(params string, rules string, context context.Context) (result
 		core.BaseTime = "real_time"
 	}
 
-	//log.Info("BaseTime is", core.BaseTime)
 	var ruleList []interface{}
 	var data interface{}
 
@@ -93,7 +89,7 @@ func DetectHandler(params string, rules string, context context.Context) (result
 			type rule struct {
 				Ruleindex int `json:"ruleindex"`
 			}
-			log.Error("rule is empty ", &rule{
+			common.ErrorLogger.Error("rule is empty ", &rule{
 				Ruleindex: kk,
 			})
 			return makeResult(errnoEmptyRule, nil), nil
@@ -101,8 +97,7 @@ func DetectHandler(params string, rules string, context context.Context) (result
 		go func(ruleBytes []byte) {
 			defer func() {
 				if err := recover(); err != nil {
-					fmt.Println(8888)
-					fmt.Println(err)
+					common.ErrorLogger.Info("err : ", err)
 				}
 			}()
 
@@ -129,7 +124,7 @@ func DetectHandler(params string, rules string, context context.Context) (result
 			}
 
 			//routineElapsed := time.Since(routineStart)
-			log.Info("DetectHandler Routine Cost Time: ", &TimeContext{
+			common.InfoLogger.Info("DetectHandler Routine Cost Time: ", &TimeContext{
 				TraceId:  TraceId,
 				CostTime: (time.Now().UnixNano() - routineStart) / 1000,
 			})
@@ -146,9 +141,8 @@ func DetectHandler(params string, rules string, context context.Context) (result
 
 	for value := range detectChannel {
 		if value.errorInfo != nil {
-			fmt.Println(value.errorInfo)
+			common.ErrorLogger.Info(value.errorInfo)
 			monitor.SendDingDingMessage(" :" + value.errorInfo.Error())
-
 			//_ = sendResult(w, errnoDetectFailed, value.errorInfo.Error())
 			//return false,value.errorInfo
 			//return makeResult(errnoInvalidDetectParams,nil),nil
@@ -171,9 +165,6 @@ func DetectHandler(params string, rules string, context context.Context) (result
 	}
 
 	//elapsed := time.Since(start)
-	log.Info("DetectHandler Cost Time: ", &TimeContext{
-		TraceId:  TraceId,
-		CostTime: (time.Now().UnixNano() - start) / 1000,
-	})
+	common.InfoLogger.Infof("TraceId : %v DetectHandler  Cost Time: %v", TraceId, (time.Now().UnixNano()-start)/1000)
 	return makeResult(errnoSuccess, hitResult), nil
 }

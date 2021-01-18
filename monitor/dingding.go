@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/astaxie/beego"
-	"io/ioutil"
 	"net/http"
 	"time"
 )
@@ -34,7 +33,7 @@ func Sign() string {
 //发送消息
 func SendDingDingMessage(contentData string) bool {
 	if checkLimit() {
-		fmt.Println("钉钉消息超过限制，不发送。")
+		common.WarnLogger.Info("钉钉消息超过限制，不发送。")
 		return false
 	}
 	var atMap = make(map[string]string)
@@ -42,7 +41,6 @@ func SendDingDingMessage(contentData string) bool {
 	atMap["msgtype"] = "text"
 	content, data := make(map[string]string), make(map[string]interface{})
 	content["content"] = beego.AppConfig.String("keyWords") + contentData
-	fmt.Println(beego.AppConfig.String("keyWords") + contentData)
 	data["msgtype"] = "text"
 	data["text"] = content
 	data["at"] = atMap
@@ -50,11 +48,11 @@ func SendDingDingMessage(contentData string) bool {
 
 	resp, err := http.Post(Sign(), "application/json", bytes.NewBuffer(b))
 	if err != nil {
-		fmt.Println(err)
+		common.ErrorLogger.Info(err)
 	}
 	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
+	//body, _ := ioutil.ReadAll(resp.Body)
+	//fmt.Println(string(body))
 	return true
 }
 

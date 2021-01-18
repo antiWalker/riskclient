@@ -3,7 +3,6 @@ package common
 import (
 	"github.com/astaxie/beego/config"
 	"github.com/go-redis/redis"
-	"gitlaball.nicetuan.net/wangjingnan/golib/gsr/log"
 	"os"
 	"time"
 )
@@ -16,7 +15,7 @@ func getRedisInstance() *redis.Client {
 	defer func() {
 		e := recover()
 		if e != nil {
-			log.Debug("redis recover: %s", e)
+			ErrorLogger.Infof("redis recover: %s", e)
 		}
 	}()
 	databaseConf, errDb := getConf("database")
@@ -49,7 +48,7 @@ func getRedisInstance() *redis.Client {
 		PoolTimeout:  30 * time.Second,
 	})
 	if _, err := RedisCli.Ping().Result(); err != nil {
-		log.Debug("write redis error: %s", err)
+		ErrorLogger.Infof("write redis error: %s", err)
 	}
 	_, err := RedisCli.Ping().Result()
 	if err != nil {
@@ -86,7 +85,7 @@ func RedisMGet(key []string) (data []interface{}, err error) {
 
 	data, err = client.MGet(key...).Result()
 	if err != nil {
-		log.Debug("MGet redis error: %s", err)
+		ErrorLogger.Infof("MGet redis error: %s", err)
 	}
 
 	return data, err

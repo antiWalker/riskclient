@@ -1,10 +1,9 @@
 package models
 
 import (
+	"bigrisk/common"
 	"encoding/json"
-	"fmt"
 	"github.com/astaxie/beego/orm"
-	"gitlaball.nicetuan.net/wangjingnan/golib/gsr/log"
 	_ "gitlaball.nicetuan.net/wangjingnan/golib/register-golang/db/orm"
 	"strconv"
 	"time"
@@ -69,7 +68,6 @@ type Order struct {
 func AddNegativeGrossProfitResult(params string, ruleId string) (int64, error) {
 	var order Order
 	if err := json.Unmarshal([]byte(params), &order); err == nil {
-		fmt.Println(order)
 		var o = orm.NewOrm()
 		negativeGrossProfitResult := NegativeGrossProfitResult{}
 		negativeGrossProfitResult.NegativeType = 0
@@ -96,15 +94,13 @@ func AddNegativeGrossProfitResult(params string, ruleId string) (int64, error) {
 		o.Using("default")
 		id, err := o.Insert(&negativeGrossProfitResult)
 		if err != nil {
-			log.Info(" %d insert success ! ", id)
-			fmt.Println("insert err :", err)
+			common.ErrorLogger.Infof(" %d insert success ! insert err : ", id, err)
 			return id, err
 		}
 
 		return 0, err
 	} else {
-		log.Info(" 订单号为：%d insert fail ! ", order.OrderId)
-		fmt.Println(err)
+		common.ErrorLogger.Infof(" 订单号为：%d insert fail %v ! ", order.OrderId, err)
 		return 0, err
 	}
 }

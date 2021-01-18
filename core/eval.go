@@ -1,17 +1,15 @@
 package core
 
 import (
+	"bigrisk/common"
 	"bigrisk/models"
 	"context"
 	"errors"
-	"fmt"
 	"math"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
-
-	"gitlaball.nicetuan.net/wangjingnan/golib/gsr/log"
 )
 
 func (c *complexNode) Execute(ctx context.Context, runStack *Stack, params map[string]interface{}, reason *[]string) error {
@@ -75,7 +73,7 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 		resultNodeType := integerNodeType
 
 		//log.Info("runStack", runStack,"runStack")
-		log.Info("runStack", &TraceContext{
+		common.InfoLogger.Info("runStack", &TraceContext{
 			TraceId:  TraceId,
 			RunStack: runStack,
 		})
@@ -222,7 +220,7 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 			//mySQLElapsed := time.Since(mySQLStart)
 
 			//log.Debug("DetectHandler MySQL Query Cost Time: ", (time.Now().UnixNano()-mySQLStart)/1000,"costTime")
-			log.Debug("DetectHandler MySQL Query Cost Time: ", &TraceContext{
+			common.DebugLogger.Debug("DetectHandler MySQL Query Cost Time: ", &TraceContext{
 				TraceId:  TraceId,
 				CostTime: (time.Now().UnixNano() - mySQLStart) / 1000,
 			})
@@ -259,7 +257,7 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 
 			//log.Info("executeNode", executeNode,"executeNode")
 			//log.Info("where", wh,"where")
-			log.Info("runStack", &TraceContext{
+			common.InfoLogger.Info("runStack", &TraceContext{
 				TraceId:     TraceId,
 				RunStack:    runStack,
 				ExecuteNode: executeNode,
@@ -735,7 +733,7 @@ func Eval(rule []byte, params map[string]interface{}, context context.Context) (
 
 	if conditionRule != nil {
 
-		log.Debug("conditionRule", &TraceContext{
+		common.DebugLogger.Debug("conditionRule", &TraceContext{
 			TraceId:       TraceId,
 			ConditionRule: conditionRule,
 		})
@@ -767,7 +765,7 @@ func Eval(rule []byte, params map[string]interface{}, context context.Context) (
 	// check the exceptionRule
 	if exceptionRule != nil {
 
-		log.Debug("exceptionRule", exceptionRule, "exceptionRule")
+		common.DebugLogger.Debug("exceptionRule", exceptionRule, "exceptionRule")
 
 		var exceptionStack Stack
 
@@ -797,14 +795,13 @@ func Eval(rule []byte, params map[string]interface{}, context context.Context) (
 	}
 
 	//log.Debug("matchRule", matchRule,"matchRule")
-	log.Debug("matchRule", &TraceContext{
+	common.DebugLogger.Debug("matchRule", &TraceContext{
 		TraceId:   TraceId,
 		MatchRule: matchRule,
 	})
 	var matchStack Stack
 	ok1 := matchRule.Execute(ctx, &matchStack, params, &reason)
 	if ok1 != nil {
-		fmt.Println(ok1.Error())
 		return sign, haveRisk, reason, errors.New("riskEngine: eval match rule failed\n" + ok1.Error())
 	}
 
@@ -819,7 +816,7 @@ func Eval(rule []byte, params map[string]interface{}, context context.Context) (
 	}
 	haveRisk = matchRisk
 	//log.Debug("DetectHandler Eval Cost Time: ", (time.Now().UnixNano()-evalStart)/1000,"costTime")
-	log.Debug("DetectHandler Eval Cost Time: ", &TraceContext{
+	common.DebugLogger.Debug("DetectHandler Eval Cost Time: ", &TraceContext{
 		TraceId:  TraceId,
 		CostTime: (time.Now().UnixNano() - evalStart) / 1000,
 	})

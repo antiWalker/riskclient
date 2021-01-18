@@ -6,12 +6,7 @@ import (
 	"bigrisk/handlers"
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/astaxie/beego/orm"
-	"github.com/sirupsen/logrus"
-	"gitlaball.nicetuan.net/wangjingnan/golib/gsr/log"
-	"gitlaball.nicetuan.net/wangjingnan/golib/logrus-gsr/wrapper"
-	"io"
 	"os"
 	"os/signal"
 	"strconv"
@@ -19,22 +14,10 @@ import (
 	"syscall"
 )
 
-//var logger log.Logger
-func init() {
-	file, _ := os.OpenFile("info.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	writers := []io.Writer{file, os.Stdout}
-	//同时写文件和屏幕
-	fileAndStdoutWriter := io.MultiWriter(writers...)
-	logger := wrapper.NewLogger()
-	logger.Logrus.SetLevel(logrus.InfoLevel)
-	logger.Logrus.SetOutput(fileAndStdoutWriter)
-	log.SetLogger(logger)
-}
-
 func prod() {
 	consumerGroup, err := common.GetConsumerGroup()
 	if err != nil {
-		log.Fatal("Error creating consumer group: %v", err)
+		common.ErrorLogger.Fatalf("Error creating consumer group: %v", err)
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	consumer := consumer.NewConsumer()
@@ -44,7 +27,7 @@ func prod() {
 		for {
 			err := consumerGroup.Consume(ctx, common.GetTopics(), &consumer)
 			if err != nil {
-				log.Fatal("Error from consumer: %v", err)
+				common.ErrorLogger.Fatal("Error from consumer: %v", err)
 			}
 			if ctx.Err() != nil {
 				return
@@ -59,19 +42,19 @@ func prod() {
 
 	for i := 0; i < consumerCount; i++ {
 		go doConsume(waitGroup)
-		log.Info("Consumer goroutine %d is up and running", i)
+		common.InfoLogger.Info("Consumer goroutine %d is up and running", i)
 	}
 
 	<-consumer.Ready
-	log.Info("Consumer group is up and running")
+	common.InfoLogger.Info("Consumer group is up and running")
 
 	sigterm := make(chan os.Signal, 1)
 	signal.Notify(sigterm, syscall.SIGTERM, syscall.SIGINT)
 	select {
 	case <-sigterm:
-		log.Info("Consuming terminated by signal")
+		common.InfoLogger.Info("Consuming terminated by signal")
 	case <-ctx.Done():
-		log.Info("Consuming terminated by context")
+		common.InfoLogger.Info("Consuming terminated by context")
 	}
 
 	cancel()
@@ -79,7 +62,7 @@ func prod() {
 
 	err = consumerGroup.Close()
 	if err != nil {
-		log.Fatal(" Error closing consumer group: %v", err)
+		common.ErrorLogger.Fatalf(" Error closing consumer group: %v", err)
 	}
 }
 
@@ -106,11 +89,11 @@ func local() {
 
 	var raw = new(OrderInfo)
 	if err := json.Unmarshal([]byte(params), &raw); err != nil {
-		fmt.Println(err)
+		common.ErrorLogger.Fatal(err)
 	}
 	SiteId := "0"
 	//通过子站id拼成子站场景key，然后拿着key从redis获取这个场景要过的的规则集合
-	key := "RISK_FUMAOLI_SCENE_" + string(SiteId)
+	key := "RISK_FUMAOLI_SCENE_" + SiteId
 	rules = common.RedisGet(key)
 	i, _ := raw.SubOrderId.Int64()
 	ctx = context.WithValue(ctx, "TraceId", int(i))
@@ -119,7 +102,7 @@ func local() {
 		rules = common.RedisGet("RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10))
 	}
 	if rules == "" {
-		fmt.Println("redis里面缓存的规则集不能为空")
+		common.DebugLogger.Info("redis里面缓存的规则集不能为空")
 		return
 	}
 
@@ -132,25 +115,23 @@ func local() {
 		HitList := HRes.StrategyList
 		//命中后再做log到db的操作。
 		if IsHit == true {
-			log.Info("命中了，命中了。", HitList, "{SubOrderId is : "+raw.SubOrderId, "{UserId     is : "+raw.UserId)
-			//SubOrderId,_ := raw.SubOrderId.Int64()
-			//UserId ,_    := raw.UserId.Int64()
+			common.HitLogger.Infof("TraceId : %d ,UserId : %v , 命中规则列表 :%v , ", ctx.Value("TraceId"), raw.UserId, HitList)
 			insertToDb(params, HitList)
 		} else {
-			log.Info("这个订单未命中任何策略。")
+			common.InfoLogger.Info("这个订单未命中任何策略。")
 		}
 	} else {
 		//解析出错钉钉群报警
-		fmt.Println(hit.ErrMsg)
+		common.InfoLogger.Infof("hit.ErrMsg : %v", hit.ErrMsg)
 	}
 }
 
 //如果一个订单过多条策略，则可以把这个订单下多个命中的策略批量insert。
 func insertToDb(params string, HitList []handlers.StrategyResult) {
-	for k, v := range HitList {
+	for _, v := range HitList {
 		//fmt.Println(k, v)
 		ruleRes := v.IsHit
-		fmt.Println(k, ruleRes)
+		//fmt.Println(k, ruleRes)
 		//把命中的策略结果insert到polardb
 		if ruleRes {
 			//todo imp
