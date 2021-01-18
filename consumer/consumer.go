@@ -72,7 +72,7 @@ func doConsumer(params string) error {
 		HitList := HRes.StrategyList
 		//命中后再做log到db的操作。
 		if IsHit == true {
-			common.HitLogger.Infof("TraceId : %d ,UserId : %v , 命中规则列表 :%v , ", ctx.Value("TraceId"), raw.UserId, HitList)
+			common.HitLogger.Infof("TraceId : %d ,UserId : %v , 命中规则列表 :%v ", ctx.Value("TraceId"), raw.UserId, HitList)
 			InsertToDb(params, HitList)
 		}
 	} else {
