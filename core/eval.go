@@ -61,6 +61,7 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 	if v := ctx.Value("TraceId"); v != nil {
 		TraceId = strconv.Itoa(v.(int))
 	}
+
 	switch c.Value {
 	case queryMySQL:
 
@@ -270,7 +271,288 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 
 			return executeNode, nil
 		}
+	case queryREDIS:
+		var jobs []models.Job
+		var wh []models.Where
+		var tableStr string
+		var columnStr string
 
+		resultNodeType := integerNodeType
+		for _, tmpNode := range *runStack {
+			if tmpNode.(*simpleNode).Type == selectNodeType || tmpNode.(*simpleNode).Type == whereNodeType {
+
+				whereStr := tmpNode.(*simpleNode).Value.(string)
+				switch tmpNode.(*simpleNode).Type {
+				case whereNodeType:
+
+					whereArr := strings.Split(whereStr, "|")
+
+					columnStr := whereArr[0]
+					opStr := whereArr[1]
+					valueStr := whereArr[2]
+
+					if strings.HasPrefix(valueStr, "$") {
+						valueMap := strings.Split(valueStr, "$")
+						//	valueStr := reflect.ValueOf(params).Elem().FieldByName(valueMap[1])
+						key := valueMap[1]
+
+						valueStr, ok := params[key]
+						if ok == false {
+							return nil, errors.New("riskEngine: valueStr is not valid\n ")
+						}
+						typ := reflect.TypeOf(valueStr)
+
+						switch typ.Kind() {
+						case reflect.Int:
+							valueReal := int64(valueStr.(int))
+							wh = append(wh, models.Where{columnStr, opStr, strconv.FormatInt(valueReal, 10)})
+
+						case reflect.Int8:
+							valueReal := int64(valueStr.(int8))
+							wh = append(wh, models.Where{columnStr, opStr, strconv.FormatInt(valueReal, 10)})
+
+						case reflect.Int16:
+							valueReal := int64(valueStr.(int16))
+							wh = append(wh, models.Where{columnStr, opStr, strconv.FormatInt(valueReal, 10)})
+
+						case reflect.Int32:
+							valueReal := int64(valueStr.(int32))
+							wh = append(wh, models.Where{columnStr, opStr, strconv.FormatInt(valueReal, 10)})
+
+						case reflect.Int64:
+							valueReal := valueStr.(int64)
+							wh = append(wh, models.Where{columnStr, opStr, strconv.FormatInt(valueReal, 10)})
+
+						case reflect.Float32:
+							valueReal := float64(valueStr.(float32))
+							wh = append(wh, models.Where{columnStr, opStr, strconv.FormatFloat(valueReal, 'f', -1, 64)})
+
+						case reflect.Float64:
+							valueReal := valueStr.(float64)
+							wh = append(wh, models.Where{columnStr, opStr, strconv.FormatFloat(valueReal, 'f', -1, 64)})
+
+						case reflect.String:
+							if valueStr.(string) != "" {
+								wh = append(wh, models.Where{columnStr, opStr, valueStr.(string)})
+							}
+						default:
+							return nil, errors.New("riskEngine: valueStr's Kind is Not Supported\n")
+						}
+					} else if strings.HasPrefix(valueStr, "T") {
+						valueMap := strings.Split(valueStr, "T")
+						hourBefore := valueMap[1]
+
+						var timeColumnStr = ""
+
+						if strings.Contains(hourBefore, "@") {
+							hourBeforeMap := strings.Split(hourBefore, "@")
+
+							hourBefore = hourBeforeMap[0]
+							timeColumnStr = hourBeforeMap[1]
+						}
+
+						var baseTime time.Time
+
+						if BaseTime == "real_time" {
+							baseTime = time.Now()
+						} else {
+							var key string
+
+							if timeColumnStr == "" {
+								key = changeField(columnStr)
+							} else {
+								key = changeField(timeColumnStr)
+							}
+
+							if key == "" {
+								return nil, errors.New("riskEngine: " + columnStr + " is empty \n")
+							}
+
+							timeStr, ok := params[key]
+							if ok == false {
+								return nil, errors.New("riskEngine: timeStr is not valid\n ")
+							}
+
+							var err error
+							baseTime, err = time.Parse("2006-01-02 15:04:05", timeStr.(string))
+
+							if err != nil {
+								return nil, errors.New("riskEngine: " + columnStr + " is not a valid DateStr \n" + err.Error())
+							}
+						}
+
+						timeBegin := baseTime
+						timeEnd := baseTime
+
+						switch hourBefore {
+						case "6":
+							timeBegin = baseTime.Add(time.Hour * - 6)
+						case "24":
+							timeBegin = baseTime.Add(time.Hour * - 24)
+						case "168":
+							timeBegin = baseTime.Add(time.Hour * - 24 * 7)
+						case "360":
+							timeBegin = baseTime.Add(time.Hour * - 24 * 15)
+						case "720":
+							timeBegin = baseTime.Add(time.Hour * - 24 * 30)
+						case "-1d":
+							oneDayBeforeDateStr := baseTime.AddDate(0, 0, -1).Format("2006-01-02")
+
+							timeBegin, _ = time.Parse("2006-01-02 15:04:05", oneDayBeforeDateStr+ " 00:00:00")
+							timeEnd, _ = time.Parse("2006-01-02 15:04:05", oneDayBeforeDateStr+ " 23:59:59")
+						case "-3d":
+							threeDayBeforeDateStr := baseTime.AddDate(0, 0, -3).Format("2006-01-02")
+
+							timeBegin, _ = time.Parse("2006-01-02 15:04:05", threeDayBeforeDateStr+ " 00:00:00")
+							timeEnd, _ = time.Parse("2006-01-02 15:04:05", threeDayBeforeDateStr+ " 23:59:59")
+						case "-7d":
+							sevenDayBeforeDateStr := baseTime.AddDate(0, 0, -7).Format("2006-01-02")
+
+							timeBegin, _ = time.Parse("2006-01-02 15:04:05", sevenDayBeforeDateStr+ " 00:00:00")
+							timeEnd, _ = time.Parse("2006-01-02 15:04:05", sevenDayBeforeDateStr+ " 23:59:59")
+						default:
+							timeBegin = baseTime.Add(time.Hour * - 24 * 7)
+						}
+
+						wh = append(wh, models.Where{columnStr, opStr, timeBegin.Format("2006-01-02")})
+						wh = append(wh, models.Where{columnStr, "lte", timeEnd.Format("2006-01-02")})
+						wh = append(wh, models.Where{columnStr, "total", hourBefore})
+
+					} else if strings.HasPrefix(valueStr, "FROM") {
+						valueMap := strings.Split(valueStr, "FROM")
+
+						var queryTime, baseTime time.Time
+
+						var err error
+						queryTime, err = time.Parse("2006-01-02 15:04:05", valueMap[1])
+
+						if err != nil {
+							return nil, errors.New("riskEngine: " + columnStr + " is not a valid DateStr \n" + err.Error())
+						}
+
+						if BaseTime == "real_time" {
+							baseTime = time.Now()
+						} else {
+							key := changeField(columnStr)
+
+							if key == "" {
+								return nil, errors.New("riskEngine: " + columnStr + " is empty \n")
+							}
+
+							timeStr, ok := params[key]
+							if ok == false {
+								return nil, errors.New("riskEngine: timeStr is not valid\n ")
+							}
+
+							var err error
+							baseTime, err = time.Parse("2006-01-02 15:04:05", timeStr.(string))
+
+							if err != nil {
+								return nil, errors.New("riskEngine: " + columnStr + " is not a valid DateStr \n" + err.Error())
+							}
+						}
+
+						wh = append(wh, models.Where{columnStr, opStr, queryTime.Format("2006-01-02 15:04:05")})
+						wh = append(wh, models.Where{columnStr, "lte", baseTime.Format("2006-01-02 15:04:05")})
+
+					} else {
+						wh = append(wh, models.Where{columnStr, opStr, valueStr})
+					}
+
+				case selectNodeType:
+					selectStr := tmpNode.(*simpleNode).Value.(string)
+
+					selectArr := strings.Split(selectStr, "|")
+
+					tableStr = selectArr[0]
+					columnStr = selectArr[1]
+
+					if strings.Contains(columnStr, "sum") {
+						resultNodeType = numberNodeType
+					}
+
+				default:
+					return nil, errors.New("riskEngine: unexpect type in query execute\n ")
+				}
+
+				var err error
+				if _, err = runStack.Pop(); err != nil {
+					return nil, errors.New("riskEngine: pop from runStack failed in query execute\n ")
+				}
+			}
+		}
+
+		if tableStr == "" {
+			return nil, errors.New("riskEngine: tableStr is empty\n ")
+		}
+
+		if columnStr == "" {
+			return nil, errors.New("riskEngine: columnStr is empty\n ")
+		}
+
+		executeNode := new(simpleNode)
+		executeNode.Type = resultNodeType
+		executeNode.Value = 0
+
+		if len(wh) > 0 {
+			mySQLStart := time.Now().UnixNano()
+			jobs = append(jobs, models.Job{1, string(c.Value), columnStr, tableStr, wh})
+			//fmt.Printf("111%+v", jobs)
+			//println(199)
+			println(19999)
+			res,ok:= QueryJob(jobs)
+			if !ok{
+				return nil,errors.New("riskEngine: not supported this type")
+			}
+			//mySQLElapsed := time.Since(mySQLStart)
+
+			//log.Debug("DetectHandler MySQL Query Cost Time: ", (time.Now().UnixNano()-mySQLStart)/1000,"costTime")
+			common.InfoLogger.Info("DetectHandler Redis Query Cost Time: ", &TraceContext{
+				TraceId:TraceId,
+				CostTime:(time.Now().UnixNano()-mySQLStart)/1000,
+			})
+			*reason = res[0].detail
+			var isThisDataInvolved = false
+
+			for _, v := range res[0].detail {
+				if v == params["prepare_id"] {
+					isThisDataInvolved = true
+					break
+				}
+			}
+			if isThisDataInvolved == false {
+				if BaseTime == "real_time" {
+					if strings.HasPrefix(columnStr, POLYMERIZESUM) {
+						key :=columnStr[5 : ]
+						selectSection := strings.Split(key, "::")
+						newKey :=selectSection[0]
+						columnVal, ok := params[newKey]
+						if ok == false {
+							return nil, errors.New("riskEngine: "+key+" is not valid\n ")
+						}
+						executeNode.Value = res[0].result.(int64)+int64(columnVal.(float64))
+					} else if strings.HasPrefix(columnStr, POLYMERIZEGET) {
+						executeNode.Value = res[0].result
+					}
+				} else {
+					executeNode.Value = res[0].result
+				}
+			} else {
+				executeNode.Value = res[0].result
+			}
+			//log.Info("executeNode", executeNode,"executeNode")
+			common.InfoLogger.Info("runStack", &TraceContext{
+				TraceId:TraceId,
+				ExecuteNode:executeNode,
+				Where:wh,
+			})
+
+			return executeNode, nil
+		} else {
+			executeNode.Value = int64(0)
+
+			return executeNode, nil
+		}
 	default:
 		return nil, errors.New("riskEngine: not supported query type")
 	}

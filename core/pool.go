@@ -4,18 +4,21 @@ import (
 	"bigrisk/common"
 	"bigrisk/models"
 	"errors"
+	"fmt"
 	"strings"
 )
 
 //支持引擎
 const (
 	ENGINEMYSQL = "mysql"
+	ENGINEREDIS = "redis"
 )
 
 //聚合类型
 const (
 	POLYMERIZECOUNT = "count"
 	POLYMERIZESUM   = "sum"
+	POLYMERIZEGET 	= "get"
 )
 
 type JobResult struct {
@@ -31,6 +34,8 @@ type Engine interface {
 
 type MysqlEngine struct {
 }
+type RedisEngine struct {
+}
 
 /*引擎查询统一入口*/
 func QueryJob(jobs []models.Job) ([]JobResult, bool) {
@@ -45,6 +50,8 @@ func QueryJob(jobs []models.Job) ([]JobResult, bool) {
 		//可扩展es等引擎
 		if job.Engine == ENGINEMYSQL {
 			engine = new(MysqlEngine)
+		} else if job.Engine == ENGINEREDIS {
+			engine = new(RedisEngine)
 		} else {
 			jobResults = append(jobResults, JobResult{job.JobId, 0, nil, errors.New("engine not exist")})
 			continue
@@ -118,5 +125,53 @@ func (mysqlEngine MysqlEngine) query(job models.Job, result chan<- JobResult) {
 		result <- JobResult{job.JobId, num, detail, error}
 	} else {
 		result <- JobResult{job.JobId, 0, nil, errors.New("select type not support")}
+	}
+}
+// redis引擎并发查询入口
+func (redisEngine RedisEngine) query(job models.Job, result chan<- JobResult) {
+	defer func() {
+		if err := recover(); err != nil {
+			//if os.Getenv("RUNTIME_TYPE") == "dev" {
+				//errError, _ := err.(error)
+				//errString:= errError.Error()
+				//log.Debug("query panic ", &TraceContext{
+				//	TraceId: "",
+				//	Error: errString,
+				//})
+			//}
+
+			var numDefaut int64
+			result <- JobResult{job.JobId, numDefaut, nil,errors.New("unknown field/column name")}
+			return
+		}
+	}()
+	selectStruct := strings.Split(job.Select, "::")
+	//路由聚合类型
+	fmt.Println(123123123123)
+	if selectStruct[0] == POLYMERIZEGET {
+		//merchandiseid:333:quantity:2021-01-02
+		wh :=job.Where
+		skuKey :=wh[0].Column
+		skuValue :=wh[0].Value
+		lenTime := wh[3].Value
+		dealKey := skuKey+":"+skuValue+":"+selectStruct[1]+":"+lenTime
+		var keyNum interface{}
+		var err error
+		keyNum = int64(0)
+		fmt.Println(dealKey)
+		//get key value from redis
+		//todo imp
+		var allNums []interface{}
+
+		//var totalNumber int64
+		if allNums !=nil{
+			keyNum = int64(1)
+		}else{
+			keyNum = int64(0)
+		}
+
+		result <- JobResult{job.JobId, keyNum, []string{},err}
+	} else {
+		result <- JobResult{job.JobId, 0, []string{}, errors.New("select type not support")}
 	}
 }

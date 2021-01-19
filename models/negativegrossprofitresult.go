@@ -71,7 +71,7 @@ func AddNegativeGrossProfitResult(params string, ruleId string) (int64, error) {
 		var o = orm.NewOrm()
 		negativeGrossProfitResult := NegativeGrossProfitResult{}
 		negativeGrossProfitResult.NegativeType = 0
-		negativeGrossProfitResult.SiteId = order.SiteId
+		negativeGrossProfitResult.SiteId = order.MainSiteId
 		negativeGrossProfitResult.OrderId = order.OrderId
 		negativeGrossProfitResult.SubOrderId = order.SubOrderId
 		negativeGrossProfitResult.UserId = order.UserId

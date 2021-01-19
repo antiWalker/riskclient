@@ -68,8 +68,8 @@ func prod() {
 
 func main() {
 	orm.Debug = true
-	//local()
-	prod()
+	local()
+	//prod()
 }
 
 func local() {

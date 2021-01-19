@@ -38,7 +38,7 @@
             "children": [
               {
                 "type": "select",
-                "value": "paysuborder|count::quantity"
+                "value": "paysuborder|get::quantity"
               },
               {
                 "type": "where",

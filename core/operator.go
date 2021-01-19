@@ -132,6 +132,7 @@ const (
 	queryMySQL QueryOperatorType = "mysql" // 查询 mysql
 	queryES    QueryOperatorType = "es"    // 查询 es
 	queryDict  QueryOperatorType = "dict"  // 查询 词库
+	queryREDIS QueryOperatorType = "redis" // 查询 redis
 )
 
 func AllQueryOperatorType() []QueryOperatorType {
