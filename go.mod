@@ -9,6 +9,6 @@ require (
 	github.com/Shopify/sarama v1.27.2
 	github.com/astaxie/beego v1.12.3
 	github.com/go-redis/redis v6.14.2+incompatible
-	gitlaball.nicetuan.net/wangjingnan/golib v1.1.4
+	gitlaball.nicetuan.net/wangjingnan/golib v1.1.5
 	go.uber.org/zap v1.16.0
 )
