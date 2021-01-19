@@ -18,7 +18,7 @@ const (
 const (
 	POLYMERIZECOUNT = "count"
 	POLYMERIZESUM   = "sum"
-	POLYMERIZEGET 	= "get"
+	POLYMERIZEGET   = "get"
 )
 
 type JobResult struct {
@@ -127,34 +127,34 @@ func (mysqlEngine MysqlEngine) query(job models.Job, result chan<- JobResult) {
 		result <- JobResult{job.JobId, 0, nil, errors.New("select type not support")}
 	}
 }
+
 // redis引擎并发查询入口
 func (redisEngine RedisEngine) query(job models.Job, result chan<- JobResult) {
 	defer func() {
 		if err := recover(); err != nil {
 			//if os.Getenv("RUNTIME_TYPE") == "dev" {
-				//errError, _ := err.(error)
-				//errString:= errError.Error()
-				//log.Debug("query panic ", &TraceContext{
-				//	TraceId: "",
-				//	Error: errString,
-				//})
+			//errError, _ := err.(error)
+			//errString:= errError.Error()
+			//log.Debug("query panic ", &TraceContext{
+			//	TraceId: "",
+			//	Error: errString,
+			//})
 			//}
 
 			var numDefaut int64
-			result <- JobResult{job.JobId, numDefaut, nil,errors.New("unknown field/column name")}
+			result <- JobResult{job.JobId, numDefaut, nil, errors.New("unknown field/column name")}
 			return
 		}
 	}()
 	selectStruct := strings.Split(job.Select, "::")
 	//路由聚合类型
-	fmt.Println(123123123123)
 	if selectStruct[0] == POLYMERIZEGET {
 		//merchandiseid:333:quantity:2021-01-02
-		wh :=job.Where
-		skuKey :=wh[0].Column
-		skuValue :=wh[0].Value
+		wh := job.Where
+		skuKey := wh[0].Column
+		skuValue := wh[0].Value
 		lenTime := wh[3].Value
-		dealKey := skuKey+":"+skuValue+":"+selectStruct[1]+":"+lenTime
+		dealKey := skuKey + ":" + skuValue + ":" + selectStruct[1] + ":" + lenTime
 		var keyNum interface{}
 		var err error
 		keyNum = int64(0)
@@ -164,13 +164,13 @@ func (redisEngine RedisEngine) query(job models.Job, result chan<- JobResult) {
 		var allNums []interface{}
 
 		//var totalNumber int64
-		if allNums !=nil{
+		if allNums != nil {
 			keyNum = int64(1)
-		}else{
+		} else {
 			keyNum = int64(0)
 		}
 
-		result <- JobResult{job.JobId, keyNum, []string{},err}
+		result <- JobResult{job.JobId, keyNum, []string{}, err}
 	} else {
 		result <- JobResult{job.JobId, 0, []string{}, errors.New("select type not support")}
 	}

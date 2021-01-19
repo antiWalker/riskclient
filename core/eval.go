@@ -74,10 +74,7 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 		resultNodeType := integerNodeType
 
 		//log.Info("runStack", runStack,"runStack")
-		common.InfoLogger.Info("runStack", &TraceContext{
-			TraceId:  TraceId,
-			RunStack: runStack,
-		})
+		common.InfoLogger.Info("TraceId : %v , runStack : %v ", TraceId, runStack)
 		for _, tmpNode := range *runStack {
 			if tmpNode.(*simpleNode).Type == selectNodeType || tmpNode.(*simpleNode).Type == whereNodeType {
 
@@ -221,10 +218,7 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 			//mySQLElapsed := time.Since(mySQLStart)
 
 			//log.Debug("DetectHandler MySQL Query Cost Time: ", (time.Now().UnixNano()-mySQLStart)/1000,"costTime")
-			common.DebugLogger.Debug("DetectHandler MySQL Query Cost Time: ", &TraceContext{
-				TraceId:  TraceId,
-				CostTime: (time.Now().UnixNano() - mySQLStart) / 1000,
-			})
+			common.DebugLogger.Debug("TraceId : %v , DetectHandler MySQL Query Cost Time: %v ", TraceId, (time.Now().UnixNano()-mySQLStart)/1000)
 			*reason = res[0].detail
 
 			var isThisDataInvolved = false
@@ -256,14 +250,7 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 				executeNode.Value = res[0].result
 			}
 
-			//log.Info("executeNode", executeNode,"executeNode")
-			//log.Info("where", wh,"where")
-			common.InfoLogger.Info("runStack", &TraceContext{
-				TraceId:     TraceId,
-				RunStack:    runStack,
-				ExecuteNode: executeNode,
-				Where:       wh,
-			})
+			common.InfoLogger.Infof("TraceId : %v , RunStack : %v , ExecuteNode : %v , Where : %v ", TraceId, runStack, executeNode, wh)
 
 			return executeNode, nil
 		} else {
@@ -386,32 +373,32 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 
 						switch hourBefore {
 						case "6":
-							timeBegin = baseTime.Add(time.Hour * - 6)
+							timeBegin = baseTime.Add(time.Hour * -6)
 						case "24":
-							timeBegin = baseTime.Add(time.Hour * - 24)
+							timeBegin = baseTime.Add(time.Hour * -24)
 						case "168":
-							timeBegin = baseTime.Add(time.Hour * - 24 * 7)
+							timeBegin = baseTime.Add(time.Hour * -24 * 7)
 						case "360":
-							timeBegin = baseTime.Add(time.Hour * - 24 * 15)
+							timeBegin = baseTime.Add(time.Hour * -24 * 15)
 						case "720":
-							timeBegin = baseTime.Add(time.Hour * - 24 * 30)
+							timeBegin = baseTime.Add(time.Hour * -24 * 30)
 						case "-1d":
 							oneDayBeforeDateStr := baseTime.AddDate(0, 0, -1).Format("2006-01-02")
 
-							timeBegin, _ = time.Parse("2006-01-02 15:04:05", oneDayBeforeDateStr+ " 00:00:00")
-							timeEnd, _ = time.Parse("2006-01-02 15:04:05", oneDayBeforeDateStr+ " 23:59:59")
+							timeBegin, _ = time.Parse("2006-01-02 15:04:05", oneDayBeforeDateStr+" 00:00:00")
+							timeEnd, _ = time.Parse("2006-01-02 15:04:05", oneDayBeforeDateStr+" 23:59:59")
 						case "-3d":
 							threeDayBeforeDateStr := baseTime.AddDate(0, 0, -3).Format("2006-01-02")
 
-							timeBegin, _ = time.Parse("2006-01-02 15:04:05", threeDayBeforeDateStr+ " 00:00:00")
-							timeEnd, _ = time.Parse("2006-01-02 15:04:05", threeDayBeforeDateStr+ " 23:59:59")
+							timeBegin, _ = time.Parse("2006-01-02 15:04:05", threeDayBeforeDateStr+" 00:00:00")
+							timeEnd, _ = time.Parse("2006-01-02 15:04:05", threeDayBeforeDateStr+" 23:59:59")
 						case "-7d":
 							sevenDayBeforeDateStr := baseTime.AddDate(0, 0, -7).Format("2006-01-02")
 
-							timeBegin, _ = time.Parse("2006-01-02 15:04:05", sevenDayBeforeDateStr+ " 00:00:00")
-							timeEnd, _ = time.Parse("2006-01-02 15:04:05", sevenDayBeforeDateStr+ " 23:59:59")
+							timeBegin, _ = time.Parse("2006-01-02 15:04:05", sevenDayBeforeDateStr+" 00:00:00")
+							timeEnd, _ = time.Parse("2006-01-02 15:04:05", sevenDayBeforeDateStr+" 23:59:59")
 						default:
-							timeBegin = baseTime.Add(time.Hour * - 24 * 7)
+							timeBegin = baseTime.Add(time.Hour * -24 * 7)
 						}
 
 						wh = append(wh, models.Where{columnStr, opStr, timeBegin.Format("2006-01-02")})
@@ -499,17 +486,16 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 			jobs = append(jobs, models.Job{1, string(c.Value), columnStr, tableStr, wh})
 			//fmt.Printf("111%+v", jobs)
 			//println(199)
-			println(19999)
-			res,ok:= QueryJob(jobs)
-			if !ok{
-				return nil,errors.New("riskEngine: not supported this type")
+			res, ok := QueryJob(jobs)
+			if !ok {
+				return nil, errors.New("riskEngine: not supported this type")
 			}
 			//mySQLElapsed := time.Since(mySQLStart)
 
 			//log.Debug("DetectHandler MySQL Query Cost Time: ", (time.Now().UnixNano()-mySQLStart)/1000,"costTime")
 			common.InfoLogger.Info("DetectHandler Redis Query Cost Time: ", &TraceContext{
-				TraceId:TraceId,
-				CostTime:(time.Now().UnixNano()-mySQLStart)/1000,
+				TraceId:  TraceId,
+				CostTime: (time.Now().UnixNano() - mySQLStart) / 1000,
 			})
 			*reason = res[0].detail
 			var isThisDataInvolved = false
@@ -523,14 +509,14 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 			if isThisDataInvolved == false {
 				if BaseTime == "real_time" {
 					if strings.HasPrefix(columnStr, POLYMERIZESUM) {
-						key :=columnStr[5 : ]
+						key := columnStr[5:]
 						selectSection := strings.Split(key, "::")
-						newKey :=selectSection[0]
+						newKey := selectSection[0]
 						columnVal, ok := params[newKey]
 						if ok == false {
-							return nil, errors.New("riskEngine: "+key+" is not valid\n ")
+							return nil, errors.New("riskEngine: " + key + " is not valid\n ")
 						}
-						executeNode.Value = res[0].result.(int64)+int64(columnVal.(float64))
+						executeNode.Value = res[0].result.(int64) + int64(columnVal.(float64))
 					} else if strings.HasPrefix(columnStr, POLYMERIZEGET) {
 						executeNode.Value = res[0].result
 					}
@@ -542,9 +528,9 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 			}
 			//log.Info("executeNode", executeNode,"executeNode")
 			common.InfoLogger.Info("runStack", &TraceContext{
-				TraceId:TraceId,
-				ExecuteNode:executeNode,
-				Where:wh,
+				TraceId:     TraceId,
+				ExecuteNode: executeNode,
+				Where:       wh,
 			})
 
 			return executeNode, nil
