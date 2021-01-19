@@ -486,7 +486,6 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 			jobs = append(jobs, models.Job{1, string(c.Value), columnStr, tableStr, wh})
 			//fmt.Printf("111%+v", jobs)
 			//println(199)
-			println(19999)
 			res, ok := QueryJob(jobs)
 			if !ok {
 				return nil, errors.New("riskEngine: not supported this type")
