@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/Shopify/sarama"
+	"gitlaball.nicetuan.net/wangjingnan/golib/cache/redis"
 	"strconv"
 )
 
@@ -51,10 +52,10 @@ func doConsumer(params string) error {
 	//SiteId := 10030
 	//通过子站id拼成子站场景key，然后拿着key从redis获取这个场景要过的的规则集合
 	key := "RISK_FUMAOLI_SCENE_" + strconv.Itoa(SiteId)
-	rules := common.RedisGet(key)
+	rules := redis.RedisGet(key)
 	if rules == "" {
 		//找默认的规则
-		rules = common.RedisGet("RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10))
+		rules = redis.RedisGet("RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10))
 	}
 	if rules == "" {
 		monitor.SendDingDingMessage(" 【redis里面key: RISK_FUMAOLI_SCENE_" + strconv.Itoa(SiteId) + " 和 默认 RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10) + " 对应缓存的规则集不能为空，请确认数据是否异常。】")

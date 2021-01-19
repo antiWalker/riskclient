@@ -7,6 +7,8 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/astaxie/beego/orm"
+	"gitlaball.nicetuan.net/wangjingnan/golib/cache/redis"
+	"gitlaball.nicetuan.net/wangjingnan/golib/mq/kafka"
 	"os"
 	"os/signal"
 	"strconv"
@@ -15,7 +17,7 @@ import (
 )
 
 func prod() {
-	consumerGroup, err := common.GetConsumerGroup()
+	consumerGroup, err := kafka.GetConsumerGroup()
 	if err != nil {
 		common.ErrorLogger.Fatalf("Error creating consumer group: %v", err)
 	}
@@ -25,7 +27,7 @@ func prod() {
 	doConsume := func(wg *sync.WaitGroup) {
 		defer wg.Done()
 		for {
-			err := consumerGroup.Consume(ctx, common.GetTopics(), &consumer)
+			err := consumerGroup.Consume(ctx, kafka.GetTopics(), &consumer)
 			if err != nil {
 				common.ErrorLogger.Fatal("Error from consumer: %v", err)
 			}
@@ -37,7 +39,7 @@ func prod() {
 	}
 
 	waitGroup := &sync.WaitGroup{}
-	consumerCount, _ := common.GetConsumerCount()
+	consumerCount, _ := kafka.GetConsumerCount()
 	waitGroup.Add(consumerCount)
 
 	for i := 0; i < consumerCount; i++ {
@@ -68,8 +70,8 @@ func prod() {
 
 func main() {
 	orm.Debug = true
-	local()
-	//prod()
+	//local()
+	prod()
 }
 
 func local() {
@@ -94,12 +96,12 @@ func local() {
 	SiteId := "0"
 	//通过子站id拼成子站场景key，然后拿着key从redis获取这个场景要过的的规则集合
 	key := "RISK_FUMAOLI_SCENE_" + SiteId
-	rules = common.RedisGet(key)
+	rules = redis.RedisGet(key)
 	i, _ := raw.SubOrderId.Int64()
 	ctx = context.WithValue(ctx, "TraceId", int(i))
 	if rules == "" {
 		//找默认的规则
-		rules = common.RedisGet("RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10))
+		rules = redis.RedisGet("RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10))
 	}
 	if rules == "" {
 		common.DebugLogger.Info("redis里面缓存的规则集不能为空")

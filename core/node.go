@@ -454,10 +454,7 @@ func constructNodeFromString(ctx context.Context, ruleStr []byte) (*cookedRuleTy
 	//compileElapsed := time.Since(compileStart)
 
 	//log.Debug("DetectHandler Compile Cost Time: ", (time.Now().UnixNano()-compileStart)/1000,"costTime")
-	common.InfoLogger.Info("Wrapper Cost Time: ", &TraceContext{
-		TraceId:  TraceId,
-		CostTime: (time.Now().UnixNano() - compileStart) / 1000,
-	})
+	common.InfoLogger.Infof(" TraceId : %v , Wrapper Cost Time: %v", TraceId, (time.Now().UnixNano()-compileStart)/1000)
 
 	return cooked, nil
 }

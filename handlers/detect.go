@@ -7,6 +7,7 @@ import (
 	"bigrisk/monitor"
 	"context"
 	"encoding/json"
+	"gitlaball.nicetuan.net/wangjingnan/golib/cache/redis"
 	"strconv"
 	"sync"
 	"time"
@@ -69,7 +70,7 @@ func DetectHandler(params string, rules string, context context.Context) (result
 		listKey = append(listKey, v)
 	}
 
-	keyValues, _ := common.RedisMGet(listKey)
+	keyValues, _ := redis.RedisMGet(listKey)
 
 	if len(ruleList) == 0 {
 		return makeResult(errnoEmptyRule, nil), nil

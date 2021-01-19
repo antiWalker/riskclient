@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/astaxie/beego"
+	"gitlaball.nicetuan.net/wangjingnan/golib/cache/redis"
 	"net/http"
 	"time"
 )
@@ -59,7 +60,7 @@ func SendDingDingMessage(contentData string) bool {
 //check 检查消息发送频率是否超过限制：每个机器人每分钟最多发送20条。如果超过20条，会限流10分钟。
 func checkLimit() bool {
 	//发送前设置一个缓存一分钟的自增数
-	value := common.RedisIncrEx(beego.AppConfig.String("riskclientId"), 60*time.Second)
+	value := redis.RedisIncrEx(beego.AppConfig.String("riskclientId"), 60*time.Second)
 	if value > 20 {
 		return true
 	}
