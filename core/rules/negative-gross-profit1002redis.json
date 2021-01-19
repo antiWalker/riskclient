@@ -34,7 +34,7 @@
         "children": [
           {
             "type": "query",
-            "value": "mysql",
+            "value": "redis",
             "children": [
               {
                 "type": "select",
