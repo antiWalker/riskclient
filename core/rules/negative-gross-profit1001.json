@@ -75,6 +75,20 @@
             "value": "111,222,333"
           }
         ]
+      },
+      {
+        "type": "operator",
+        "value": "inWordList",
+        "children": [
+          {
+            "type": "field",
+            "value": "mainSiteId"
+          },
+          {
+            "type": "string",
+            "value": "10701"
+          }
+        ]
       }
     ]
   }

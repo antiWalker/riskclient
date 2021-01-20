@@ -61,26 +61,49 @@
   "exception": {
     "type": "logic",
     "value": "and",
-    "children": [{
-      "type": "operator",
-      "value": "==",
-      "children": [{
-        "type": "number",
-        "value": 0
-      }, {
-        "type": "number",
-        "value": 0
-      }]
-    }, {
-      "type": "operator",
-      "value": "inWordList",
-      "children": [{
-        "type": "field",
-        "value": "merchandiseId"
-      }, {
-        "type": "string",
-        "value": "111,222,333"
-      }]
-    }]
+    "children": [
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "number",
+            "value": 0
+          },
+          {
+            "type": "number",
+            "value": 0
+          }
+        ]
+      },
+      {
+        "type": "operator",
+        "value": "inWordList",
+        "children": [
+          {
+            "type": "field",
+            "value": "merchandiseId"
+          },
+          {
+            "type": "string",
+            "value": "111,222,333"
+          }
+        ]
+      },
+      {
+        "type": "operator",
+        "value": "inWordList",
+        "children": [
+          {
+            "type": "field",
+            "value": "mainSiteId"
+          },
+          {
+            "type": "string",
+            "value": "10701"
+          }
+        ]
+      }
+    ]
   }
 }
