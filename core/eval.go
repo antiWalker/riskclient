@@ -493,10 +493,7 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 			//mySQLElapsed := time.Since(mySQLStart)
 
 			//log.Debug("DetectHandler MySQL Query Cost Time: ", (time.Now().UnixNano()-mySQLStart)/1000,"costTime")
-			common.InfoLogger.Info("DetectHandler Redis Query Cost Time: ", &TraceContext{
-				TraceId:  TraceId,
-				CostTime: (time.Now().UnixNano() - mySQLStart) / 1000,
-			})
+			common.InfoLogger.Infof("TraceId : %v , DetectHandler Redis Query Cost Time: %v", TraceId, (time.Now().UnixNano()-mySQLStart)/1000)
 			*reason = res[0].detail
 			var isThisDataInvolved = false
 
@@ -527,11 +524,7 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 				executeNode.Value = res[0].result
 			}
 			//log.Info("executeNode", executeNode,"executeNode")
-			common.InfoLogger.Info("runStack", &TraceContext{
-				TraceId:     TraceId,
-				ExecuteNode: executeNode,
-				Where:       wh,
-			})
+			common.InfoLogger.Infof("TraceId : %v , wh : %v ,  runStack : %v ", TraceId, wh, executeNode)
 
 			return executeNode, nil
 		} else {
@@ -1001,10 +994,7 @@ func Eval(rule []byte, params map[string]interface{}, context context.Context) (
 
 	if conditionRule != nil {
 
-		common.DebugLogger.Debug("conditionRule", &TraceContext{
-			TraceId:       TraceId,
-			ConditionRule: conditionRule,
-		})
+		common.DebugLogger.Debugf("TraceId : %v ,conditionRule : %v", TraceId, conditionRule)
 		var conditionStack Stack
 
 		var conditionReason = make([]string, 0)
@@ -1033,7 +1023,7 @@ func Eval(rule []byte, params map[string]interface{}, context context.Context) (
 	// check the exceptionRule
 	if exceptionRule != nil {
 
-		common.DebugLogger.Debug("exceptionRule", exceptionRule, "exceptionRule")
+		common.DebugLogger.Debug("exceptionRule : %v ", exceptionRule)
 
 		var exceptionStack Stack
 
@@ -1063,10 +1053,7 @@ func Eval(rule []byte, params map[string]interface{}, context context.Context) (
 	}
 
 	//log.Debug("matchRule", matchRule,"matchRule")
-	common.DebugLogger.Debug("matchRule", &TraceContext{
-		TraceId:   TraceId,
-		MatchRule: matchRule,
-	})
+	common.DebugLogger.Debugf("TraceId : %v , matchRule : %v ", TraceId, matchRule)
 	var matchStack Stack
 	ok1 := matchRule.Execute(ctx, &matchStack, params, &reason)
 	if ok1 != nil {
@@ -1084,9 +1071,6 @@ func Eval(rule []byte, params map[string]interface{}, context context.Context) (
 	}
 	haveRisk = matchRisk
 	//log.Debug("DetectHandler Eval Cost Time: ", (time.Now().UnixNano()-evalStart)/1000,"costTime")
-	common.DebugLogger.Debug("DetectHandler Eval Cost Time: ", &TraceContext{
-		TraceId:  TraceId,
-		CostTime: (time.Now().UnixNano() - evalStart) / 1000,
-	})
+	common.DebugLogger.Debugf("TraceId : %v , DetectHandler Eval Cost Time: %v ", TraceId, (time.Now().UnixNano()-evalStart)/1000)
 	return sign, haveRisk, reason, nil
 }
