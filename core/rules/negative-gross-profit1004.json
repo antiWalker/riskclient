@@ -33,48 +33,20 @@
         "value": "<",
         "children": [
           {
-            "type": "operator",
-            "value": "*",
+            "type": "query",
+            "value": "redis",
             "children": [
               {
-                "type": "query",
-                "value": "mysql",
-                "children": [
-                  {
-                    "type": "select",
-                    "value": "paysuborder|sum::quantity"
-                  },
-                  {
-                    "type": "where",
-                    "value": "merchandiseid|eq|$merchandiseId"
-                  },
-                  {
-                    "type": "where",
-                    "value": "orderstatus|eq|5"
-                  },
-                  {
-                    "type": "where",
-                    "value": "suborderdateline|gt|T24"
-                  },
-                  {
-                    "type": "where",
-                    "value": "price|lt|$supplyPrice"
-                  }
-                ]
+                "type": "select",
+                "value": "paysuborder|get::merchandiseid:$merchandiseid:negativeprice:$time"
               },
               {
-                "type": "operator",
-                "value": "-",
-                "children": [
-                  {
-                    "type": "field",
-                    "value": "price"
-                  },
-                  {
-                    "type": "field",
-                    "value": "supplyPrice"
-                  }
-                ]
+                "type": "where",
+                "value": "merchandiseid|eq|$merchandiseId"
+              },
+              {
+                "type": "where",
+                "value": "time|gt|T0d"
               }
             ]
           },
