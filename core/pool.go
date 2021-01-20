@@ -4,7 +4,8 @@ import (
 	"bigrisk/common"
 	"bigrisk/models"
 	"errors"
-	"fmt"
+	"gitlaball.nicetuan.net/wangjingnan/golib/cache/redis"
+	"strconv"
 	"strings"
 )
 
@@ -132,15 +133,6 @@ func (mysqlEngine MysqlEngine) query(job models.Job, result chan<- JobResult) {
 func (redisEngine RedisEngine) query(job models.Job, result chan<- JobResult) {
 	defer func() {
 		if err := recover(); err != nil {
-			//if os.Getenv("RUNTIME_TYPE") == "dev" {
-			//errError, _ := err.(error)
-			//errString:= errError.Error()
-			//log.Debug("query panic ", &TraceContext{
-			//	TraceId: "",
-			//	Error: errString,
-			//})
-			//}
-
 			var numDefaut int64
 			result <- JobResult{job.JobId, numDefaut, nil, errors.New("unknown field/column name")}
 			return
@@ -151,26 +143,16 @@ func (redisEngine RedisEngine) query(job models.Job, result chan<- JobResult) {
 	if selectStruct[0] == POLYMERIZEGET {
 		//merchandiseid:333:quantity:2021-01-02
 		wh := job.Where
-		skuKey := wh[0].Column
-		skuValue := wh[0].Value
-		lenTime := wh[3].Value
-		dealKey := skuKey + ":" + skuValue + ":" + selectStruct[1] + ":" + lenTime
-		var keyNum interface{}
-		var err error
-		keyNum = int64(0)
-		fmt.Println(dealKey)
-		//get key value from redis
-		//todo imp
-		var allNums []interface{}
-
-		//var totalNumber int64
-		if allNums != nil {
-			keyNum = int64(1)
-		} else {
-			keyNum = int64(0)
+		finalKey := selectStruct[1]
+		for _, e := range wh {
+			if strings.Contains(finalKey, "$"+e.Column) && (e.Operator == "gt" || e.Operator == "eq") {
+				finalKey = strings.ReplaceAll(finalKey, "$"+e.Column, e.Value)
+			}
 		}
-
-		result <- JobResult{job.JobId, keyNum, []string{}, err}
+		//get key value from redis
+		common.InfoLogger.Infof("finalKey : %v ", finalKey)
+		allNums, _ := strconv.ParseInt(redis.RedisGet(finalKey), 10, 64)
+		result <- JobResult{job.JobId, allNums, []string{finalKey}, nil}
 	} else {
 		result <- JobResult{job.JobId, 0, []string{}, errors.New("select type not support")}
 	}

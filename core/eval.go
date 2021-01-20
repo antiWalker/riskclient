@@ -382,6 +382,11 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 							timeBegin = baseTime.Add(time.Hour * -24 * 15)
 						case "720":
 							timeBegin = baseTime.Add(time.Hour * -24 * 30)
+						case "0d":
+							oneDayBeforeDateStr := baseTime.AddDate(0, 0, 0).Format("2006-01-02")
+
+							timeBegin, _ = time.Parse("2006-01-02 15:04:05", oneDayBeforeDateStr+" 00:00:00")
+							timeEnd, _ = time.Parse("2006-01-02 15:04:05", oneDayBeforeDateStr+" 23:59:59")
 						case "-1d":
 							oneDayBeforeDateStr := baseTime.AddDate(0, 0, -1).Format("2006-01-02")
 
@@ -404,43 +409,6 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 						wh = append(wh, models.Where{columnStr, opStr, timeBegin.Format("2006-01-02")})
 						wh = append(wh, models.Where{columnStr, "lte", timeEnd.Format("2006-01-02")})
 						wh = append(wh, models.Where{columnStr, "total", hourBefore})
-
-					} else if strings.HasPrefix(valueStr, "FROM") {
-						valueMap := strings.Split(valueStr, "FROM")
-
-						var queryTime, baseTime time.Time
-
-						var err error
-						queryTime, err = time.Parse("2006-01-02 15:04:05", valueMap[1])
-
-						if err != nil {
-							return nil, errors.New("riskEngine: " + columnStr + " is not a valid DateStr \n" + err.Error())
-						}
-
-						if BaseTime == "real_time" {
-							baseTime = time.Now()
-						} else {
-							key := changeField(columnStr)
-
-							if key == "" {
-								return nil, errors.New("riskEngine: " + columnStr + " is empty \n")
-							}
-
-							timeStr, ok := params[key]
-							if ok == false {
-								return nil, errors.New("riskEngine: timeStr is not valid\n ")
-							}
-
-							var err error
-							baseTime, err = time.Parse("2006-01-02 15:04:05", timeStr.(string))
-
-							if err != nil {
-								return nil, errors.New("riskEngine: " + columnStr + " is not a valid DateStr \n" + err.Error())
-							}
-						}
-
-						wh = append(wh, models.Where{columnStr, opStr, queryTime.Format("2006-01-02 15:04:05")})
-						wh = append(wh, models.Where{columnStr, "lte", baseTime.Format("2006-01-02 15:04:05")})
 
 					} else {
 						wh = append(wh, models.Where{columnStr, opStr, valueStr})

@@ -38,7 +38,7 @@
             "children": [
               {
                 "type": "select",
-                "value": "paysuborder|count::quantity"
+                "value": "paysuborder|get::merchandiseid:$merchandiseid:quantity:$time"
               },
               {
                 "type": "where",
@@ -46,11 +46,7 @@
               },
               {
                 "type": "where",
-                "value": "orderstatus|eq|5"
-              },
-              {
-                "type": "where",
-                "value": "suborderdateline|gt|T24"
+                "value": "time|gt|T0d"
               }
             ]
           },
