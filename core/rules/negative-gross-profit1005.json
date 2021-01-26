@@ -1,0 +1,53 @@
+{
+  "sign": "5",
+  "match": {
+    "type": "logic",
+    "value": "and",
+    "children": [
+      {
+        "type": "operator",
+        "value": "<",
+        "children": [
+          {
+            "type": "operator",
+            "value": "-",
+            "children": [
+              {
+                "type": "field",
+                "value": "price"
+              },
+              {
+                "type": "field",
+                "value": "supplyPrice"
+              }
+            ]
+          },
+          {
+            "type": "number",
+            "value": -10000
+          }
+        ]
+      }
+    ]
+  },
+  "exception": {
+    "type": "logic",
+    "value": "and",
+    "children": [
+      {
+        "type": "operator",
+        "value": "inWordList",
+        "children": [
+          {
+            "type": "field",
+            "value": "merchandiseId"
+          },
+          {
+            "type": "string",
+            "value": "111,222,333"
+          }
+        ]
+      }
+    ]
+  }
+}
