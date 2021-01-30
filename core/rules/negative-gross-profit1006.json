@@ -1,5 +1,5 @@
 {
-  "sign": "4",
+  "sign": "6",
   "match": {
     "type": "logic",
     "value": "and",
@@ -30,7 +30,7 @@
       },
       {
         "type": "operator",
-        "value": "<",
+        "value": ">=",
         "children": [
           {
             "type": "query",
@@ -38,11 +38,11 @@
             "children": [
               {
                 "type": "select",
-                "value": "paysuborder|get::merchandiseid:$merchandiseid:negativeprice:$time"
+                "value": "paysuborder|get::partnerid:$partnerId:count:$time"
               },
               {
                 "type": "where",
-                "value": "merchandiseid|eq|$merchandiseId"
+                "value": "partnerId|eq|$partnerId"
               },
               {
                 "type": "where",
@@ -52,7 +52,7 @@
           },
           {
             "type": "integer",
-            "value": -10000
+            "value": 100
           }
         ]
       }
@@ -86,7 +86,7 @@
           },
           {
             "type": "string",
-            "value": "745917,745930,745861"
+            "value": "111,222,333"
           }
         ]
       },
