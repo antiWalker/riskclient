@@ -75,20 +75,6 @@
             "value": "745917,745930,745861"
           }
         ]
-      },
-      {
-        "type": "operator",
-        "value": "inWordList",
-        "children": [
-          {
-            "type": "field",
-            "value": "mainSiteId"
-          },
-          {
-            "type": "string",
-            "value": "10701"
-          }
-        ]
       }
     ]
   }
