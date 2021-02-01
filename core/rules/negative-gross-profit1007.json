@@ -52,7 +52,7 @@
           },
           {
             "type": "integer",
-            "value": -20000
+            "value": -10000
           }
         ]
       }
