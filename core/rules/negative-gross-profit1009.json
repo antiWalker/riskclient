@@ -1,0 +1,67 @@
+{
+  "sign": "9",
+  "match": {
+    "type": "logic",
+    "value": "and",
+    "children": [
+      {
+        "type": "operator",
+        "value": ">",
+        "children": [
+          {
+            "type": "operator",
+            "value": "*",
+            "children": [
+              {
+                "type": "field",
+                "value": "price"
+              },
+              {
+                "type": "field",
+                "value": "quantity"
+              }
+            ]
+          },
+          {
+            "type": "number",
+            "value": 50000
+          }
+        ]
+      }
+    ]
+  },
+  "exception": {
+    "type": "logic",
+    "value": "and",
+    "children": [
+      {
+        "type": "operator",
+        "value": "==",
+        "children": [
+          {
+            "type": "number",
+            "value": 0
+          },
+          {
+            "type": "number",
+            "value": 0
+          }
+        ]
+      },
+      {
+        "type": "operator",
+        "value": "inWordList",
+        "children": [
+          {
+            "type": "field",
+            "value": "merchandiseId"
+          },
+          {
+            "type": "string",
+            "value": "745917,745930,745861"
+          }
+        ]
+      }
+    ]
+  }
+}
