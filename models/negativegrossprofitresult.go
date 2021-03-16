@@ -27,6 +27,7 @@ type NegativeGrossProfitResult struct {
 	SupplierPrice   int
 	RuleResult      string
 	MerchandiseName string
+	CouponMoney     int
 }
 
 type Order struct {
@@ -81,6 +82,7 @@ func AddNegativeGrossProfitResult(params string, ruleId string) (int64, error) {
 		negativeGrossProfitResult.SupplierPrice = order.SupplyPrice
 		negativeGrossProfitResult.PartnerId = order.PartnerId
 		negativeGrossProfitResult.Quantity = order.Quantity
+		negativeGrossProfitResult.CouponMoney = order.CouponMoney
 
 		if order.Ts > 0 && len(strconv.FormatInt(order.Ts, 10)) == 13 {
 			negativeGrossProfitResult.OrderTime = order.Ts / 1000
