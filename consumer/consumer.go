@@ -74,7 +74,7 @@ func doConsumer(params string) error {
 		//命中后再做log到db的操作。
 		if IsHit == true {
 			common.HitLogger.Infof("TraceId : %d , Order_Info : %v , 命中规则列表 :%v ", ctx.Value("TraceId"), raw, HitList)
-			InsertToDb(params, HitList)
+			InsertToDb(ctx, params, HitList)
 		}
 	} else {
 		//解析出错钉钉群报警
@@ -84,7 +84,7 @@ func doConsumer(params string) error {
 }
 
 //如果一个订单过多条策略，则可以把这个订单下多个命中的策略批量insert。
-func InsertToDb(params string, HitList []handlers.StrategyResult) {
+func InsertToDb(ctx context.Context, params string, HitList []handlers.StrategyResult) {
 	for _, v := range HitList {
 		//fmt.Println(k, v)
 		ruleRes := v.IsHit
@@ -93,7 +93,7 @@ func InsertToDb(params string, HitList []handlers.StrategyResult) {
 		if ruleRes {
 			//fmt.Println(ruleRes)
 			id, err := models.AddNegativeGrossProfitResult(params, v.Name)
-			common.SQLLogger.Infof("%v , AddNegativeGrossProfitResult : id : %v , err : %v", v, id, err)
+			common.SQLLogger.Infof("TraceId : %d ,StrategyResult : %v , AddNegativeGrossProfitResult : id : %v , err : %v", ctx.Value("TraceId"), v, id, err)
 		}
 	}
 }
