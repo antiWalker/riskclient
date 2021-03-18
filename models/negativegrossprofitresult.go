@@ -27,8 +27,8 @@ type NegativeGrossProfitResult struct {
 	SupplierPrice   int
 	RuleResult      string
 	MerchandiseName string
-	CouponMoney     int
-	MerchTypeId     int
+	CouponMoney     int `orm:"column(CouponMoney)"`
+	MerchTypeId     int `orm:"column(MerchTypeId)"`
 }
 
 type Order struct {
