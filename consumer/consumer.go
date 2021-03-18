@@ -92,7 +92,8 @@ func InsertToDb(params string, HitList []handlers.StrategyResult) {
 		//把命中的策略结果insert到polardb
 		if ruleRes {
 			//fmt.Println(ruleRes)
-			models.AddNegativeGrossProfitResult(params, v.Name)
+			id, err := models.AddNegativeGrossProfitResult(params, v.Name)
+			common.SQLLogger.Infof("%v , AddNegativeGrossProfitResult : id : %v , err : %v", v.Name, id, err)
 		}
 	}
 }
