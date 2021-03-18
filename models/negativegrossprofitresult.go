@@ -101,6 +101,8 @@ func AddNegativeGrossProfitResult(params string, ruleId string) (int64, error) {
 		if err != nil {
 			common.ErrorLogger.Infof(" %d insert success ! insert err : ", id, err)
 			return id, err
+		} else {
+			common.ErrorLogger.Infof(" 订单号为：%d insert fail %v ! ", order.OrderId, err)
 		}
 
 		return 0, err
