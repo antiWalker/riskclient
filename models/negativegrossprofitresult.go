@@ -103,7 +103,7 @@ func AddNegativeGrossProfitResult(params string, ruleId string) (int64, error) {
 			return id, err
 		}
 
-		return 0, err
+		return id, err
 	} else {
 		common.ErrorLogger.Infof(" 订单号为：%d insert fail %v ! ", order.OrderId, err)
 		return 0, err

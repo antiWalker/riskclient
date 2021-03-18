@@ -93,7 +93,7 @@ func InsertToDb(params string, HitList []handlers.StrategyResult) {
 		if ruleRes {
 			//fmt.Println(ruleRes)
 			id, err := models.AddNegativeGrossProfitResult(params, v.Name)
-			common.SQLLogger.Infof("%v , AddNegativeGrossProfitResult : id : %v , err : %v", v.Name, id, err)
+			common.SQLLogger.Infof("%v , AddNegativeGrossProfitResult : id : %v , err : %v", v, id, err)
 		}
 	}
 }
