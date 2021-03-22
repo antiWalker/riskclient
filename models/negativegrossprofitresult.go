@@ -29,6 +29,7 @@ type NegativeGrossProfitResult struct {
 	MerchandiseName string
 	CouponMoney     int `orm:"column(CouponMoney)"`
 	MerchTypeId     int `orm:"column(MerchTypeId)"`
+	GrouponId       int `orm:"column(groupon_id)"`
 }
 
 type Order struct {
@@ -86,6 +87,7 @@ func AddNegativeGrossProfitResult(params string, ruleId string) (int64, error) {
 		negativeGrossProfitResult.Quantity = order.Quantity
 		negativeGrossProfitResult.CouponMoney = order.CouponMoney
 		negativeGrossProfitResult.MerchTypeId = order.MerchTypeId
+		negativeGrossProfitResult.GrouponId = order.GrouponId
 
 		if order.Ts > 0 && len(strconv.FormatInt(order.Ts, 10)) == 13 {
 			negativeGrossProfitResult.OrderTime = order.Ts / 1000
