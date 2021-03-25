@@ -60,7 +60,7 @@
           },
           {
             "type": "integer",
-            "value": 20
+            "value": 100
           }
         ]
       }
