@@ -3,6 +3,7 @@ package core
 import (
 	"bigrisk/common"
 	"bigrisk/models"
+	"encoding/json"
 	"errors"
 	"gitlaball.nicetuan.net/wangjingnan/golib/cache/redis"
 	"strconv"
@@ -20,6 +21,7 @@ const (
 	POLYMERIZECOUNT = "count"
 	POLYMERIZESUM   = "sum"
 	POLYMERIZEGET   = "get"
+	POLYMERIZEHGET  = "hget"
 )
 
 type JobResult struct {
@@ -153,6 +155,32 @@ func (redisEngine RedisEngine) query(job models.Job, result chan<- JobResult) {
 		common.InfoLogger.Infof("finalKey : %v ", finalKey)
 		allNums, _ := strconv.ParseInt(redis.RedisGet(finalKey), 10, 64)
 		result <- JobResult{job.JobId, allNums, []string{finalKey}, nil}
+	} else if selectStruct[0] == POLYMERIZEHGET {
+		// HGET sht:agbwebapp:merchandiseSale:groupon:132027:partnerId:1508368&&1082636+1309648
+		wh := job.Where
+		hkey := strings.Split(selectStruct[1], "&&")
+		// sht:agbwebapp:merchandiseSale:groupon:132027:partnerId:1508368
+		finalKey := hkey[0]
+		//$merchandiseId+$merchTypeId
+		field := hkey[1]
+		for _, e := range wh {
+			if strings.Contains(finalKey, "$"+e.Column) && (e.Operator == "gt" || e.Operator == "eq") {
+				finalKey = strings.ReplaceAll(finalKey, "$"+e.Column, e.Value)
+			}
+			if strings.Contains(field, "$"+e.Column) && (e.Operator == "gt" || e.Operator == "eq") {
+				field = strings.ReplaceAll(field, "$"+e.Column, e.Value)
+			}
+		}
+		// json 结构 "{\"gmv\":90,\"quantity\":3,\"orderNum\":3,\"buyerNum\":3}"
+		tempJson := make(map[string]int64)
+		redisResult := redis.RedisHGet(finalKey, field)
+		//get key value from redis
+		common.InfoLogger.Infof("finalKey : %v ,filed : %v , result : %v ", finalKey, field, redisResult)
+		if err := json.Unmarshal([]byte(redisResult), &tempJson); err != nil {
+			common.ErrorLogger.Infof("json err : %v", err)
+			result <- JobResult{job.JobId, 0, []string{}, errors.New("redis 取不到数据")}
+		}
+		result <- JobResult{job.JobId, tempJson[hkey[2]], []string{finalKey}, nil}
 	} else {
 		result <- JobResult{job.JobId, 0, []string{}, errors.New("select type not support")}
 	}

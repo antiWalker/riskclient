@@ -484,6 +484,8 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 						executeNode.Value = res[0].result.(int64) + int64(columnVal.(float64))
 					} else if strings.HasPrefix(columnStr, POLYMERIZEGET) {
 						executeNode.Value = res[0].result
+					} else if strings.HasPrefix(columnStr, POLYMERIZEHGET) {
+						executeNode.Value = res[0].result
 					}
 				} else {
 					executeNode.Value = res[0].result
