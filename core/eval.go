@@ -1,7 +1,6 @@
 package core
 
 import (
-	"bigrisk/common"
 	"bigrisk/models"
 	"context"
 	"errors"
@@ -57,10 +56,6 @@ func ExecuteComplexNode(ctx context.Context, c *complexNode, runStack *Stack, pa
 
 // ExecuteQueryNode execute one query type node
 func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, params map[string]interface{}, reason *[]string) (interface{}, error) {
-	var TraceId string
-	if v := ctx.Value("TraceId"); v != nil {
-		TraceId = strconv.Itoa(v.(int))
-	}
 
 	switch c.Value {
 	case queryMySQL:
