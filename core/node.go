@@ -1,13 +1,11 @@
 package core
 
 import (
-	"bigrisk/common"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -392,14 +390,7 @@ func tryConstructNode(m map[string]interface{}) (interface{}, error) {
 }
 
 func constructNodeFromString(ctx context.Context, ruleStr []byte) (*cookedRuleType, error) {
-	var TraceId string
-	if v := ctx.Value("TraceId"); v != nil {
-		TraceId = strconv.Itoa(v.(int))
-	}
-	compileStart := time.Now().UnixNano()
-
 	var raw rawRuleType
-
 	cooked := new(cookedRuleType)
 
 	// json decode failed
@@ -450,11 +441,6 @@ func constructNodeFromString(ctx context.Context, ruleStr []byte) (*cookedRuleTy
 	}
 
 	cooked.Sign = raw.Sign
-
-	//compileElapsed := time.Since(compileStart)
-
-	//log.Debug("DetectHandler Compile Cost Time: ", (time.Now().UnixNano()-compileStart)/1000,"costTime")
-	common.InfoLogger.Infof(" TraceId : %v , Wrapper Cost Time: %v", TraceId, (time.Now().UnixNano()-compileStart)/1000)
 
 	return cooked, nil
 }

@@ -73,8 +73,6 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 
 		resultNodeType := integerNodeType
 
-		//log.Info("runStack", runStack,"runStack")
-		common.InfoLogger.Info("TraceId : %v , runStack : %v ", TraceId, runStack)
 		for _, tmpNode := range *runStack {
 			if tmpNode.(*simpleNode).Type == selectNodeType || tmpNode.(*simpleNode).Type == whereNodeType {
 
@@ -207,18 +205,11 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 		executeNode.Value = 0
 
 		if len(wh) > 0 {
-			mySQLStart := time.Now().UnixNano()
-
 			jobs = append(jobs, models.Job{1, string(c.Value), columnStr, tableStr, wh})
 			res, ok := QueryJob(jobs)
-			//fmt.Println(res)
 			if !ok {
 				return nil, errors.New("riskEngine: not supported this type")
 			}
-			//mySQLElapsed := time.Since(mySQLStart)
-
-			//log.Debug("DetectHandler MySQL Query Cost Time: ", (time.Now().UnixNano()-mySQLStart)/1000,"costTime")
-			common.DebugLogger.Debug("TraceId : %v , DetectHandler MySQL Query Cost Time: %v ", TraceId, (time.Now().UnixNano()-mySQLStart)/1000)
 			*reason = res[0].detail
 
 			var isThisDataInvolved = false
@@ -249,8 +240,6 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 			} else {
 				executeNode.Value = res[0].result
 			}
-
-			common.InfoLogger.Infof("TraceId : %v , RunStack : %v , ExecuteNode : %v , Where : %v ", TraceId, runStack, executeNode, wh)
 
 			return executeNode, nil
 		} else {
@@ -450,18 +439,11 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 		executeNode.Value = 0
 
 		if len(wh) > 0 {
-			mySQLStart := time.Now().UnixNano()
 			jobs = append(jobs, models.Job{1, string(c.Value), columnStr, tableStr, wh})
-			//fmt.Printf("111%+v", jobs)
-			//println(199)
 			res, ok := QueryJob(jobs)
 			if !ok {
 				return nil, errors.New("riskEngine: not supported this type")
 			}
-			//mySQLElapsed := time.Since(mySQLStart)
-
-			//log.Debug("DetectHandler MySQL Query Cost Time: ", (time.Now().UnixNano()-mySQLStart)/1000,"costTime")
-			common.InfoLogger.Infof("TraceId : %v , DetectHandler Redis Query Cost Time: %v", TraceId, (time.Now().UnixNano()-mySQLStart)/1000)
 			*reason = res[0].detail
 			var isThisDataInvolved = false
 
@@ -493,9 +475,6 @@ func ExecuteQueryNode(ctx context.Context, c *complexNode, runStack *Stack, para
 			} else {
 				executeNode.Value = res[0].result
 			}
-			//log.Info("executeNode", executeNode,"executeNode")
-			common.InfoLogger.Infof("TraceId : %v , wh : %v ,  runStack : %v ", TraceId, wh, executeNode)
-
 			return executeNode, nil
 		} else {
 			executeNode.Value = int64(0)
@@ -519,12 +498,10 @@ func ExecuteOperatorNode(ctx context.Context, c *complexNode, runStack *Stack, p
 
 		//valueStr := reflect.ValueOf(params).Elem().FieldByName(opVar1.(*simpleNode).Value.(string))
 		orderId, ok := params["subOrderId"]
-		//fmt.Println(orderId)
 		if ok == false {
 			return nil, errors.New("riskEngine: filed orderId not exists!\n ")
 		}
 		rr := int(orderId.(float64))
-		//fmt.Println(rr)
 		orderId = strconv.Itoa(rr)
 		mid := orderId.(string)
 		*reason = append(*reason, mid)
@@ -937,7 +914,6 @@ func ExecuteStringOperatorOp(op *complexNode, opVar1 *simpleNode, opVar2 *simple
 func Eval(rule []byte, params map[string]interface{}, context context.Context) (string, bool, []string, error) {
 
 	var haveRisk = false
-	var TraceId string
 	var ctx = context
 
 	var reason = make([]string, 0)
@@ -951,8 +927,6 @@ func Eval(rule []byte, params map[string]interface{}, context context.Context) (
 	}
 	cookedRule, ok := constructNodeFromString(ctx, rule)
 
-	evalStart := time.Now().UnixNano()
-
 	if ok != nil {
 		return "", haveRisk, reason, errors.New("riskEngine: construct cooked rule failed" + ok.Error())
 	}
@@ -964,7 +938,6 @@ func Eval(rule []byte, params map[string]interface{}, context context.Context) (
 
 	if conditionRule != nil {
 
-		common.DebugLogger.Debugf("TraceId : %v ,conditionRule : %v", TraceId, conditionRule)
 		var conditionStack Stack
 
 		var conditionReason = make([]string, 0)
@@ -992,9 +965,6 @@ func Eval(rule []byte, params map[string]interface{}, context context.Context) (
 
 	// check the exceptionRule
 	if exceptionRule != nil {
-
-		common.DebugLogger.Debug("exceptionRule : %v ", exceptionRule)
-
 		var exceptionStack Stack
 
 		var exceptionReason = make([]string, 0)
@@ -1023,7 +993,6 @@ func Eval(rule []byte, params map[string]interface{}, context context.Context) (
 	}
 
 	//log.Debug("matchRule", matchRule,"matchRule")
-	common.DebugLogger.Debugf("TraceId : %v , matchRule : %v ", TraceId, matchRule)
 	var matchStack Stack
 	ok1 := matchRule.Execute(ctx, &matchStack, params, &reason)
 	if ok1 != nil {
@@ -1040,7 +1009,5 @@ func Eval(rule []byte, params map[string]interface{}, context context.Context) (
 		matchRisk = matchRisk && el.(*simpleNode).Value.(bool)
 	}
 	haveRisk = matchRisk
-	//log.Debug("DetectHandler Eval Cost Time: ", (time.Now().UnixNano()-evalStart)/1000,"costTime")
-	common.DebugLogger.Debugf("TraceId : %v , DetectHandler Eval Cost Time: %v ", TraceId, (time.Now().UnixNano()-evalStart)/1000)
 	return sign, haveRisk, reason, nil
 }

@@ -102,7 +102,6 @@ func DetectHandler(params string, rules string, context context.Context) (result
 				}
 			}()
 
-			routineStart := time.Now().UnixNano()
 			defer wg.Done()
 
 			var thisDetectChannel DetectChannel
@@ -124,11 +123,6 @@ func DetectHandler(params string, rules string, context context.Context) (result
 				detectChannel <- thisDetectChannel
 			}
 
-			//routineElapsed := time.Since(routineStart)
-			common.InfoLogger.Info("DetectHandler Routine Cost Time: ", &TimeContext{
-				TraceId:  TraceId,
-				CostTime: (time.Now().UnixNano() - routineStart) / 1000,
-			})
 		}(ruleBytes)
 	}
 
