@@ -5,16 +5,16 @@
     "value": "and",
     "children": [
       {
-        "type":"operator",
-        "value":"==",
-        "children":[
+        "type": "operator",
+        "value": "==",
+        "children": [
           {
-            "type":"number",
-            "value":0
+            "type": "number",
+            "value": 0
           },
           {
-            "type":"number",
-            "value":0
+            "type": "number",
+            "value": 0
           }
         ]
       },
@@ -31,8 +31,18 @@
                 "value": "price"
               },
               {
-                "type": "field",
-                "value": "supplyPrice"
+                "type": "operator",
+                "value": "+",
+                "children": [
+                  {
+                    "type": "field",
+                    "value": "supplyPrice"
+                  },
+                  {
+                    "type": "field",
+                    "value": "couponMoney"
+                  }
+                ]
               }
             ]
           },
@@ -49,16 +59,16 @@
     "value": "and",
     "children": [
       {
-        "type":"operator",
-        "value":"==",
-        "children":[
+        "type": "operator",
+        "value": "==",
+        "children": [
           {
-            "type":"number",
-            "value":0
+            "type": "number",
+            "value": 0
           },
           {
-            "type":"number",
-            "value":0
+            "type": "number",
+            "value": 0
           }
         ]
       },

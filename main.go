@@ -9,6 +9,9 @@ import (
 	"github.com/astaxie/beego/orm"
 	"gitlaball.nicetuan.net/wangjingnan/golib/cache/redis"
 	"gitlaball.nicetuan.net/wangjingnan/golib/mq/kafka"
+	"log"
+	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"strconv"
@@ -70,6 +73,9 @@ func prod() {
 
 func main() {
 	orm.Debug = true
+	go func() {
+		log.Println(http.ListenAndServe("0.0.0.0:3351", nil))
+	}()
 	//local()
 	prod()
 }
@@ -87,7 +93,7 @@ func local() {
 	var params string
 	var rules string
 	//从kafka获取的order data
-	params = "{\n\t\"businessAreaId\": 671,\n\t\"couponMoney\": 0,\n\t\"grouponId\": 98383,\n\t\"isNewOrder\": 0,\n\t\"mainSiteCityId\": 107,\n\t\"mainSiteCityName\": \"沈阳市\",\n\t\"mainSiteId\": 10386,\n\t\"mainSiteName\": \"沈阳市\",\n\t\"merchandiseAbbr\": \"正大 熘肉段\",\n\t\"merchandiseId\": 806455,\n\t\"merchandiseName\": \"正大 熘肉段320g\",\n\t\"merchandisePrice\": 690,\n\t\"orderId\": 450336553706083850,\n\t\"orderStatus\": 5,\n\t\"partnerId\": 271674,\n\t\"price\": 60,\n\t\"quantity\": 1,\n\t\"rebateAmount\": 69,\n\t\"siteCityId\": 107,\n\t\"siteCityName\": \"沈阳市\",\n\t\"siteId\": 10030,\n\t\"siteName\": \"沈阳市（子站）\",\n\t\"subOrderId\": 450336553706083851,\n\t\"supplyPrice\": 1523,\n\t\"ts\": 1608885401000,\n\t\"tss\": \"2020-12-25 16:36:41\",\n\t\"userId\": 118979605,\n\t\"warehouseId\": 990\n}"
+	params = "{\n\t\"businessAreaId\": 671,\n\t\"supplyPrice\": 1523,\n\t\"couponMoney\": 0,\n\t\"grouponId\": 132338,\n\t\"partnerId\": 911064,\n\t\"merchandiseId\": 816637,\n\t\"merchTypeId\": 988341,\n\t\"isNewOrder\": 0,\n\t\"mainSiteCityId\": 107,\n\t\"mainSiteCityName\": \"沈阳市\",\n\t\"mainSiteId\": 10386,\n\t\"mainSiteName\": \"沈阳市\",\n\t\"merchandiseAbbr\": \"正大 熘肉段\",\n\t\"merchandiseName\": \"正大 熘肉段320g\",\n\t\"merchandisePrice\": 690,\n\t\"orderId\": 450336553706083850,\n\t\"orderStatus\": 5,\n\t\"price\": 60,\n\t\"quantity\": 1,\n\t\"rebateAmount\": 69,\n\t\"siteCityId\": 107,\n\t\"siteCityName\": \"沈阳市\",\n\t\"siteId\": 10030,\n\t\"siteName\": \"沈阳市（子站）\",\n\t\"subOrderId\": 450336553706083851,\n\t\"ts\": 1608885401000,\n\t\"tss\": \"2020-12-25 16:36:41\",\n\t\"userId\": 118979605,\n\t\"warehouseId\": 990\n}"
 
 	var raw = new(OrderInfo)
 	if err := json.Unmarshal([]byte(params), &raw); err != nil {
@@ -104,7 +110,7 @@ func local() {
 		rules = redis.RedisGet("RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10))
 	}
 	if rules == "" {
-		common.DebugLogger.Info("redis里面缓存的规则集不能为空")
+		common.ErrorLogger.Info("redis里面缓存的规则集不能为空")
 		return
 	}
 

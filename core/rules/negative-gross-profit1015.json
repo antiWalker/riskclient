@@ -1,0 +1,59 @@
+{
+  "sign": "15",
+  "match": {
+    "type": "logic",
+    "value": "and",
+    "children": [{
+      "type": "operator",
+      "value": ">",
+      "children": [{
+        "type": "query",
+        "value": "redis",
+        "children": [{
+          "type": "select",
+          "value": "paysuborder|hget::sht:agbwebapp:merchandiseSale:groupon:$grouponId:partnerId:$partnerId&&$merchandiseId+$merchTypeId&&quantity"
+        }, {
+          "type": "where",
+          "value": "grouponId|eq|$grouponId"
+        }, {
+          "type": "where",
+          "value": "partnerId|eq|$partnerId"
+        }, {
+          "type": "where",
+          "value": "merchandiseId|eq|$merchandiseId"
+        }, {
+          "type": "where",
+          "value": "merchTypeId|eq|$merchTypeId"
+        }]
+      }, {
+        "type": "integer",
+        "value": 200
+      }]
+    }]
+  },
+  "exception": {
+    "type": "logic",
+    "value": "and",
+    "children": [{
+      "type": "operator",
+      "value": "==",
+      "children": [{
+        "type": "number",
+        "value": 0
+      }, {
+        "type": "number",
+        "value": 0
+      }]
+    }, {
+      "type": "operator",
+      "value": "inWordList",
+      "children": [{
+        "type": "field",
+        "value": "merchandiseId"
+      }, {
+        "type": "string",
+        "value": "745917,745930,745861"
+      }]
+    }]
+  }
+}
