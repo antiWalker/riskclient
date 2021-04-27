@@ -51,20 +51,28 @@ func doConsumer(params string) error {
 	SiteId := raw.SiteId
 	//SiteId := 10030
 	//通过子站id拼成子站场景key，然后拿着key从redis获取这个场景要过的的规则集合
-	key := "RISK_FUMAOLI_SCENE_" + strconv.Itoa(SiteId)
-	rules := redis.RedisGet(key)
-	if rules == "" {
-		//找默认的规则
-		rules = redis.RedisGet("RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10))
+	var key string
+	key = common.RedisKey + strconv.Itoa(SiteId)
+	// 先从本地缓存获取，获取不到从redis中获取
+	ruleList := common.GetRules(key)
+	if len(ruleList) == 0 {
+		rules := redis.RedisGet(key)
+		if rules == "" {
+			//找默认的规则
+			key = common.RedisKey + strconv.FormatInt(0, 10)
+			rules = redis.RedisGet(key)
+		}
+		if rules == "" {
+			monitor.SendDingDingMessage(" 【redis里面key: RISK_FUMAOLI_SCENE_" + strconv.Itoa(SiteId) + " 和 默认 RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10) + " 对应缓存的规则集不能为空，请确认数据是否异常。】")
+			return nil
+		}
+		common.SetRule(key, rules)
 	}
-	if rules == "" {
-		monitor.SendDingDingMessage(" 【redis里面key: RISK_FUMAOLI_SCENE_" + strconv.Itoa(SiteId) + " 和 默认 RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10) + " 对应缓存的规则集不能为空，请确认数据是否异常。】")
-		return nil
-	}
+
 	ctx, _ := context.WithCancel(context.Background())
 
 	ctx = context.WithValue(ctx, "TraceId", raw.SubOrderId)
-	hit, _ := handlers.DetectHandler(rules, ctx)
+	hit, _ := handlers.DetectHandler(common.GetRules(key), ctx)
 	//解析结果
 	Errno := hit.Errno
 	if Errno == 0 {

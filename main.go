@@ -91,7 +91,6 @@ func local() {
 	ctx, _ := context.WithCancel(context.Background())
 	// 从kafka取params然后从redis去取rules。然后调用风控引擎模块。
 	var params string
-	var rules string
 	//从kafka获取的order data
 	params = "{\n\t\"businessAreaId\": 671,\n\t\"supplyPrice\": 1523,\n\t\"couponMoney\": 0,\n\t\"grouponId\": 132338,\n\t\"partnerId\": 911064,\n\t\"merchandiseId\": 816637,\n\t\"merchTypeId\": 988341,\n\t\"isNewOrder\": 0,\n\t\"mainSiteCityId\": 107,\n\t\"mainSiteCityName\": \"沈阳市\",\n\t\"mainSiteId\": 10386,\n\t\"mainSiteName\": \"沈阳市\",\n\t\"merchandiseAbbr\": \"正大 熘肉段\",\n\t\"merchandiseName\": \"正大 熘肉段320g\",\n\t\"merchandisePrice\": 690,\n\t\"orderId\": 450336553706083850,\n\t\"orderStatus\": 5,\n\t\"price\": 60,\n\t\"quantity\": 1,\n\t\"rebateAmount\": 69,\n\t\"siteCityId\": 107,\n\t\"siteCityName\": \"沈阳市\",\n\t\"siteId\": 10030,\n\t\"siteName\": \"沈阳市（子站）\",\n\t\"subOrderId\": 450336553706083851,\n\t\"ts\": 1608885401000,\n\t\"tss\": \"2020-12-25 16:36:41\",\n\t\"userId\": 118979605,\n\t\"warehouseId\": 990\n}"
 
@@ -101,20 +100,28 @@ func local() {
 	}
 	SiteId := "20"
 	//通过子站id拼成子站场景key，然后拿着key从redis获取这个场景要过的的规则集合
-	key := "RISK_FUMAOLI_SCENE_" + SiteId
-	rules = redis.RedisGet(key)
-	i, _ := raw.SubOrderId.Int64()
-	ctx = context.WithValue(ctx, "TraceId", int(i))
-	if rules == "" {
-		//找默认的规则
-		rules = redis.RedisGet("RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10))
-	}
-	if rules == "" {
-		common.ErrorLogger.Info("redis里面缓存的规则集不能为空")
-		return
+	var key string
+	key = common.RedisKey + SiteId
+	// 先从本地缓存获取，获取不到从redis中获取
+	ruleList := common.GetRules(key)
+	if len(ruleList) == 0 {
+		rules := redis.RedisGet(key)
+		if rules == "" {
+			//找默认的规则
+			key = common.RedisKey + strconv.FormatInt(0, 10)
+			rules = redis.RedisGet(key)
+		}
+		if rules == "" {
+			common.ErrorLogger.Info("redis里面缓存的规则集不能为空")
+			return
+		}
+		common.SetRule(key, rules)
 	}
 
-	hit, _ := handlers.DetectHandler(rules, ctx)
+	i, _ := raw.SubOrderId.Int64()
+	ctx = context.WithValue(ctx, "TraceId", int(i))
+
+	hit, _ := handlers.DetectHandler(common.GetRules(key), ctx)
 	//解析结果
 	Errno := hit.Errno
 	if Errno == 0 {
