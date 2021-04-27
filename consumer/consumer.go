@@ -64,7 +64,7 @@ func doConsumer(params string) error {
 	ctx, _ := context.WithCancel(context.Background())
 
 	ctx = context.WithValue(ctx, "TraceId", raw.SubOrderId)
-	hit, _ := handlers.DetectHandler(params, rules, ctx)
+	hit, _ := handlers.DetectHandler(rules, ctx)
 	//解析结果
 	Errno := hit.Errno
 	if Errno == 0 {
@@ -74,7 +74,7 @@ func doConsumer(params string) error {
 		//命中后再做log到db的操作。
 		if IsHit == true {
 			common.HitLogger.Infof("TraceId : %d , Order_Info : %v , 命中规则列表 :%v ", ctx.Value("TraceId"), raw, HitList)
-			InsertToDb(ctx, params, HitList)
+			InsertToDb(ctx, raw, HitList)
 		}
 	} else {
 		//解析出错钉钉群报警
@@ -83,16 +83,13 @@ func doConsumer(params string) error {
 	return nil
 }
 
-//如果一个订单过多条策略，则可以把这个订单下多个命中的策略批量insert。
-func InsertToDb(ctx context.Context, params string, HitList []handlers.StrategyResult) {
+// InsertToDb 如果一个订单过多条策略，则可以把这个订单下多个命中的策略批量insert。
+func InsertToDb(ctx context.Context, order *models.Order, HitList []handlers.StrategyResult) {
 	for _, v := range HitList {
-		//fmt.Println(k, v)
 		ruleRes := v.IsHit
-		//fmt.Println(k, ruleRes)
-		//把命中的策略结果insert到polardb
 		if ruleRes {
 			//fmt.Println(ruleRes)
-			id, err := models.AddNegativeGrossProfitResult(params, v.Name)
+			id, err := models.AddNegativeGrossProfitResult(order, v.Name)
 			common.SQLLogger.Infof("TraceId : %d ,StrategyResult : %v , AddNegativeGrossProfitResult : id : %v , err : %v", ctx.Value("TraceId"), v, id, err)
 		}
 	}

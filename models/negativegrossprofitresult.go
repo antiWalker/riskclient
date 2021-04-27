@@ -2,7 +2,6 @@ package models
 
 import (
 	"bigrisk/common"
-	"encoding/json"
 	"github.com/astaxie/beego/orm"
 	_ "gitlaball.nicetuan.net/wangjingnan/golib/register-golang/db/orm"
 	"strconv"
@@ -69,45 +68,38 @@ type Order struct {
   ruleId 规则id
   对比结果 命中 还是未命中
 */
-func AddNegativeGrossProfitResult(params string, ruleId string) (int64, error) {
-	var order Order
-	if err := json.Unmarshal([]byte(params), &order); err == nil {
-		var o = orm.NewOrm()
-		negativeGrossProfitResult := NegativeGrossProfitResult{}
-		negativeGrossProfitResult.NegativeType = 0
-		negativeGrossProfitResult.SiteId = order.MainSiteId
-		negativeGrossProfitResult.OrderId = order.OrderId
-		negativeGrossProfitResult.SubOrderId = order.SubOrderId
-		negativeGrossProfitResult.UserId = order.UserId
-		negativeGrossProfitResult.MerchandiseId = order.MerchandiseId
-		negativeGrossProfitResult.MerchandiseName = order.MerchandiseName
-		negativeGrossProfitResult.Price = order.Price
-		negativeGrossProfitResult.SupplierPrice = order.SupplyPrice
-		negativeGrossProfitResult.PartnerId = order.PartnerId
-		negativeGrossProfitResult.Quantity = order.Quantity
-		negativeGrossProfitResult.CouponMoney = order.CouponMoney
-		negativeGrossProfitResult.MerchTypeId = order.MerchTypeId
-		negativeGrossProfitResult.GrouponId = order.GrouponId
+func AddNegativeGrossProfitResult(order *Order, ruleId string) (int64, error) {
+	var o = orm.NewOrm()
+	negativeGrossProfitResult := NegativeGrossProfitResult{}
+	negativeGrossProfitResult.NegativeType = 0
+	negativeGrossProfitResult.SiteId = order.MainSiteId
+	negativeGrossProfitResult.OrderId = order.OrderId
+	negativeGrossProfitResult.SubOrderId = order.SubOrderId
+	negativeGrossProfitResult.UserId = order.UserId
+	negativeGrossProfitResult.MerchandiseId = order.MerchandiseId
+	negativeGrossProfitResult.MerchandiseName = order.MerchandiseName
+	negativeGrossProfitResult.Price = order.Price
+	negativeGrossProfitResult.SupplierPrice = order.SupplyPrice
+	negativeGrossProfitResult.PartnerId = order.PartnerId
+	negativeGrossProfitResult.Quantity = order.Quantity
+	negativeGrossProfitResult.CouponMoney = order.CouponMoney
+	negativeGrossProfitResult.MerchTypeId = order.MerchTypeId
+	negativeGrossProfitResult.GrouponId = order.GrouponId
 
-		if order.Ts > 0 && len(strconv.FormatInt(order.Ts, 10)) == 13 {
-			negativeGrossProfitResult.OrderTime = order.Ts / 1000
-		} else {
-			negativeGrossProfitResult.OrderTime = order.Ts
-		}
-
-		negativeGrossProfitResult.CreateTime = time.Now().Unix()
-		rule_Id, err := strconv.ParseInt(ruleId, 10, 64)
-		negativeGrossProfitResult.RuleId = rule_Id
-		o.Using("default")
-		id, err := o.Insert(&negativeGrossProfitResult)
-		if err != nil {
-			common.ErrorLogger.Infof(" %d insert fail ! insert err : ", id, err)
-			return id, err
-		}
-
-		return id, err
+	if order.Ts > 0 && len(strconv.FormatInt(order.Ts, 10)) == 13 {
+		negativeGrossProfitResult.OrderTime = order.Ts / 1000
 	} else {
-		common.ErrorLogger.Infof(" 订单号为：%d insert fail %v ! ", order.OrderId, err)
-		return 0, err
+		negativeGrossProfitResult.OrderTime = order.Ts
 	}
+
+	negativeGrossProfitResult.CreateTime = time.Now().Unix()
+	rule_Id, err := strconv.ParseInt(ruleId, 10, 64)
+	negativeGrossProfitResult.RuleId = rule_Id
+	o.Using("default")
+	id, err := o.Insert(&negativeGrossProfitResult)
+	if err != nil {
+		common.ErrorLogger.Infof(" %d insert fail ! insert err : ", id, err)
+		return id, err
+	}
+	return id, err
 }

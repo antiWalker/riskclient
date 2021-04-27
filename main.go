@@ -114,7 +114,7 @@ func local() {
 		return
 	}
 
-	hit, _ := handlers.DetectHandler(params, rules, ctx)
+	hit, _ := handlers.DetectHandler(rules, ctx)
 	//解析结果
 	Errno := hit.Errno
 	if Errno == 0 {

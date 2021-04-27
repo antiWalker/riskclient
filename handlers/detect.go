@@ -42,10 +42,8 @@ type StrategyResult struct {
 /// 风控检测函数
 /// data => false 表示没有风险
 /// data => true  表示有风险
-func DetectHandler(params string, rules string, context context.Context) (resultType, error) {
+func DetectHandler(rules string, context context.Context) (resultType, error) {
 	var TraceId = strconv.Itoa(context.Value("TraceId").(int))
-
-	//fmt.Println("key not found:", k)
 	start := time.Now().UnixNano()
 
 	if core.BaseTime == "" {
@@ -54,10 +52,6 @@ func DetectHandler(params string, rules string, context context.Context) (result
 
 	var ruleList []interface{}
 	var data interface{}
-
-	if err := json.Unmarshal([]byte(params), &data); err != nil {
-		return makeResult(errnoParseParamArg, nil), nil
-	}
 
 	if err := json.Unmarshal([]byte(rules), &ruleList); err != nil {
 		return makeResult(errnoParseRulesArg, nil), nil
