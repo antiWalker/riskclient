@@ -26,6 +26,15 @@ func SetRule(key, value string) {
 	RuleMap[key] = ruleList
 }
 
+// SetRuleForce  强制设置规则
+func SetRuleForce(key, value string) {
+	var ruleList []string
+	if err := json.Unmarshal([]byte(value), &ruleList); err != nil {
+		ErrorLogger.Error("rule is empty ")
+	}
+	RuleMap[key] = ruleList
+}
+
 // GetRules 获取rule集合
 func GetRules(key string) []string {
 	return RuleMap[key]
