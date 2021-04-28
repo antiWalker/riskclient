@@ -32,7 +32,7 @@ type JobResult struct {
 }
 
 type Engine interface {
-	query(job models.Job, result chan<- JobResult)
+	query(job models.Job) JobResult
 }
 
 type MysqlEngine struct {
@@ -40,16 +40,13 @@ type MysqlEngine struct {
 type RedisEngine struct {
 }
 
-/*引擎查询统一入口*/
+// QueryJob 引擎查询统一入口
 func QueryJob(jobs []models.Job) ([]JobResult, bool) {
 
 	var engine Engine
 	var jobResults []JobResult
-	ch := make(chan JobResult)
 
-	jobNum := 0
 	for _, job := range jobs {
-
 		//可扩展es等引擎
 		if job.Engine == ENGINEMYSQL {
 			engine = new(MysqlEngine)
@@ -59,50 +56,34 @@ func QueryJob(jobs []models.Job) ([]JobResult, bool) {
 			jobResults = append(jobResults, JobResult{job.JobId, 0, nil, errors.New("engine not exist")})
 			continue
 		}
-		jobNum++
 		//判断是否注册了这个表
 		if _, ok := models.RegStruct[job.Table]; ok {
-			go engine.query(job, ch)
+
+			jobResult := engine.query(job)
+			jobResults = append(jobResults, jobResult)
 		} else {
 			return nil, false
 		}
 	}
 
-	for i := 0; i < jobNum; i++ {
-		jobResults = append(jobResults, <-ch)
-	}
 	return jobResults, true
 }
 
 // mysql引擎并发查询入口
-func (mysqlEngine MysqlEngine) query(job models.Job, result chan<- JobResult) {
+func (mysqlEngine MysqlEngine) query(job models.Job) JobResult {
 	defer func() {
 		if err := recover(); err != nil {
 			common.ErrorLogger.Info("捕获到了panic产生的异常 ", err)
-			var numDefaut int64
-			result <- JobResult{job.JobId, numDefaut, nil, errors.New("unknown field/column name")}
 			return
 		}
 	}()
 	selectStruct := strings.Split(job.Select, "::")
 
 	if len(selectStruct) != 2 {
-		result <- JobResult{job.JobId, 0, nil, errors.New("select format error")}
-		return
+		return JobResult{job.JobId, 0, nil, errors.New("select format error")}
 	}
 
 	var tableEngine models.TableEngine
-	/*
-		//路由数据表
-		if job.Table == models.TABLESALESORDER {
-			tableEngine = new(models.SalesOrder)
-		} else if job.Table == models.TABLESTRATEGYDICTIONARY {
-			tableEngine = new(models.StrategyDictionary)
-		} else {
-			result <- JobResult{job.JobId, 0, errors.New("table not exist")}
-			return
-		}
-	*/
 	//路由数据表
 	if job.Table != "" {
 		key := job.Table
@@ -110,33 +91,29 @@ func (mysqlEngine MysqlEngine) query(job models.Job, result chan<- JobResult) {
 			engineName := models.RegStruct[key]
 			tableEngine = engineName.(models.TableEngine)
 		} else {
-			result <- JobResult{job.JobId, 0, nil, errors.New("table not exist")}
-			return
+			return JobResult{job.JobId, 0, nil, errors.New("table not exist")}
 		}
 	} else {
-		result <- JobResult{job.JobId, 0, nil, errors.New("table not exist")}
-		return
+		return JobResult{job.JobId, 0, nil, errors.New("table not exist")}
 	}
 
 	//路由聚合类型
 	if selectStruct[0] == POLYMERIZECOUNT {
 		num, detail, error := tableEngine.SpitCount(job)
-		result <- JobResult{job.JobId, num, detail, error}
-
+		return JobResult{job.JobId, num, detail, error}
 	} else if selectStruct[0] == POLYMERIZESUM {
 		num, detail, error := tableEngine.SpitSum(job)
-		result <- JobResult{job.JobId, num, detail, error}
+		return JobResult{job.JobId, num, detail, error}
 	} else {
-		result <- JobResult{job.JobId, 0, nil, errors.New("select type not support")}
+		return JobResult{job.JobId, 0, nil, errors.New("select type not support")}
 	}
 }
 
 // redis引擎并发查询入口
-func (redisEngine RedisEngine) query(job models.Job, result chan<- JobResult) {
+func (redisEngine RedisEngine) query(job models.Job) JobResult {
 	defer func() {
 		if err := recover(); err != nil {
-			var numDefaut int64
-			result <- JobResult{job.JobId, numDefaut, nil, errors.New("unknown field/column name")}
+			common.ErrorLogger.Info("捕获到了panic产生的异常 ", err)
 			return
 		}
 	}()
@@ -154,7 +131,7 @@ func (redisEngine RedisEngine) query(job models.Job, result chan<- JobResult) {
 		//get key value from redis
 		common.InfoLogger.Infof("finalKey : %v ", finalKey)
 		allNums, _ := strconv.ParseInt(redis.RedisGet(finalKey), 10, 64)
-		result <- JobResult{job.JobId, allNums, []string{finalKey}, nil}
+		return JobResult{job.JobId, allNums, []string{finalKey}, nil}
 	} else if selectStruct[0] == POLYMERIZEHGET {
 		// HGET sht:agbwebapp:merchandiseSale:groupon:132027:partnerId:1508368&&1082636+1309648
 		wh := job.Where
@@ -178,10 +155,10 @@ func (redisEngine RedisEngine) query(job models.Job, result chan<- JobResult) {
 		common.InfoLogger.Infof("finalKey : %v ,filed : %v , result : %v ", finalKey, field, redisResult)
 		if err := json.Unmarshal([]byte(redisResult), &tempJson); err != nil {
 			common.ErrorLogger.Infof("json err : %v", err)
-			result <- JobResult{job.JobId, 0, []string{}, errors.New("redis 取不到数据")}
+			return JobResult{job.JobId, 0, []string{}, errors.New("redis 取不到数据")}
 		}
-		result <- JobResult{job.JobId, tempJson[hkey[2]], []string{finalKey}, nil}
+		return JobResult{job.JobId, tempJson[hkey[2]], []string{finalKey}, nil}
 	} else {
-		result <- JobResult{job.JobId, 0, []string{}, errors.New("select type not support")}
+		return JobResult{job.JobId, 0, []string{}, errors.New("select type not support")}
 	}
 }
