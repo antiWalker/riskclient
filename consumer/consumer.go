@@ -48,31 +48,42 @@ func doConsumer(params string) error {
 	if err := json.Unmarshal([]byte(params), &raw); err != nil {
 		common.ErrorLogger.Infof("json format error , %v ", err)
 	}
+
+	var data map[string]interface{}
+	if err := json.Unmarshal([]byte(params), &data); err != nil {
+		common.ErrorLogger.Fatal(err)
+	}
+
 	SiteId := raw.SiteId
 	//SiteId := 10030
 	//通过子站id拼成子站场景key，然后拿着key从redis获取这个场景要过的的规则集合
+	var ruleList []string
 	var key string
 	key = common.RedisKey + strconv.Itoa(SiteId)
-	// 先从本地缓存获取，获取不到从redis中获取
-	ruleList := common.GetRules(key)
-	if len(ruleList) == 0 {
-		rules := redis.RedisGet(key)
-		if rules == "" {
-			//找默认的规则
-			key = common.RedisKey + strconv.FormatInt(0, 10)
+	rules := redis.RedisGet(key)
+	if rules == "" {
+		//找默认的规则
+		key = common.RedisKey + strconv.FormatInt(0, 10)
+		ruleList = common.GetRules(key)
+		if len(ruleList) == 0 {
+			common.WarnLogger.Info("从redis中取规则集")
 			rules = redis.RedisGet(key)
 		}
-		if rules == "" {
-			monitor.SendDingDingMessage(" 【redis里面key: RISK_FUMAOLI_SCENE_" + strconv.Itoa(SiteId) + " 和 默认 RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10) + " 对应缓存的规则集不能为空，请确认数据是否异常。】")
-			return nil
-		}
-		common.SetRule(key, rules)
+	}
+	common.SetRule(key, rules)
+
+	if len(ruleList) == 0 {
+		ruleList = common.GetRules(key)
+	}
+	if len(ruleList) == 0 {
+		monitor.SendDingDingMessage(" 【redis里面key: RISK_FUMAOLI_SCENE_" + strconv.Itoa(SiteId) + " 和 默认 RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10) + " 对应缓存的规则集不能为空，请确认数据是否异常。】")
+		return nil
 	}
 
 	ctx, _ := context.WithCancel(context.Background())
 
 	ctx = context.WithValue(ctx, "TraceId", raw.SubOrderId)
-	hit, _ := handlers.DetectHandler(common.GetRules(key), ctx)
+	hit, _ := handlers.DetectHandler(ruleList, data, ctx)
 	//解析结果
 	Errno := hit.Errno
 	if Errno == 0 {

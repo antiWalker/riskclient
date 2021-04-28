@@ -13,6 +13,12 @@ var RuleMap = make(map[string][]string)
 
 // SetRule 设置规则
 func SetRule(key, value string) {
+	if value == "" {
+		return
+	}
+	if _, ok := RuleMap[key]; ok {
+		return
+	}
 	var ruleList []string
 	if err := json.Unmarshal([]byte(value), &ruleList); err != nil {
 		ErrorLogger.Error("rule is empty ")

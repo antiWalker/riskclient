@@ -41,15 +41,13 @@ type StrategyResult struct {
 // DetectHandler  风控检测函数
 // data => false 表示没有风险
 // data => true  表示有风险
-func DetectHandler(ruleList []string, context context.Context) (resultType, error) {
+func DetectHandler(ruleList []string, data map[string]interface{}, context context.Context) (resultType, error) {
 	var TraceId = strconv.Itoa(context.Value("TraceId").(int))
 	start := time.Now().UnixNano()
 
 	if core.BaseTime == "" {
 		core.BaseTime = "real_time"
 	}
-
-	var data interface{}
 
 	//解析数组，从redis里面去
 	var listKey []string
@@ -59,9 +57,6 @@ func DetectHandler(ruleList []string, context context.Context) (resultType, erro
 
 	keyValues, _ := redis.RedisMGet(listKey)
 
-	if len(ruleList) == 0 {
-		return makeResult(errnoEmptyRule, nil), nil
-	}
 	detectChannel := make(chan DetectChannel, len(ruleList))
 
 	wg := sync.WaitGroup{}
@@ -92,7 +87,7 @@ func DetectHandler(ruleList []string, context context.Context) (resultType, erro
 			var thisDetectChannel DetectChannel
 
 			// do detect
-			if ruleSign, haveRisk, riskReason, err := control.RiskDetect(ruleBytes, data.(map[string]interface{}), context); err == nil {
+			if ruleSign, haveRisk, riskReason, err := control.RiskDetect(ruleBytes, data, context); err == nil {
 				thisDetectChannel.ruleSign = ruleSign
 				thisDetectChannel.haveRisk = haveRisk
 				thisDetectChannel.riskReason = riskReason

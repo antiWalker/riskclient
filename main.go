@@ -92,36 +92,44 @@ func local() {
 	// 从kafka取params然后从redis去取rules。然后调用风控引擎模块。
 	var params string
 	//从kafka获取的order data
-	params = "{\n\t\"businessAreaId\": 671,\n\t\"supplyPrice\": 1523,\n\t\"couponMoney\": 0,\n\t\"grouponId\": 132338,\n\t\"partnerId\": 911064,\n\t\"merchandiseId\": 816637,\n\t\"merchTypeId\": 988341,\n\t\"isNewOrder\": 0,\n\t\"mainSiteCityId\": 107,\n\t\"mainSiteCityName\": \"沈阳市\",\n\t\"mainSiteId\": 10386,\n\t\"mainSiteName\": \"沈阳市\",\n\t\"merchandiseAbbr\": \"正大 熘肉段\",\n\t\"merchandiseName\": \"正大 熘肉段320g\",\n\t\"merchandisePrice\": 690,\n\t\"orderId\": 450336553706083850,\n\t\"orderStatus\": 5,\n\t\"price\": 60,\n\t\"quantity\": 1,\n\t\"rebateAmount\": 69,\n\t\"siteCityId\": 107,\n\t\"siteCityName\": \"沈阳市\",\n\t\"siteId\": 10030,\n\t\"siteName\": \"沈阳市（子站）\",\n\t\"subOrderId\": 450336553706083851,\n\t\"ts\": 1608885401000,\n\t\"tss\": \"2020-12-25 16:36:41\",\n\t\"userId\": 118979605,\n\t\"warehouseId\": 990\n}"
+	params = "{\n\t\"businessAreaId\": 671,\n\t\"price\": 699,\n\t\"supplyPrice\": 550,\n\t\"couponMoney\": 300,\n\t\"grouponId\": 132338,\n\t\"partnerId\": 911064,\n\t\"merchandiseId\": 816637,\n\t\"merchTypeId\": 988341,\n\t\"isNewOrder\": 0,\n\t\"mainSiteCityId\": 107,\n\t\"mainSiteCityName\": \"沈阳市\",\n\t\"mainSiteId\": 10386,\n\t\"mainSiteName\": \"沈阳市\",\n\t\"merchandiseAbbr\": \"正大 熘肉段\",\n\t\"merchandiseName\": \"正大 熘肉段320g\",\n\t\"merchandisePrice\": 690,\n\t\"orderId\": 450336553706083850,\n\t\"orderStatus\": 5,\n\t\"quantity\": 1,\n\t\"rebateAmount\": 69,\n\t\"siteCityId\": 107,\n\t\"siteCityName\": \"沈阳市\",\n\t\"siteId\": 10030,\n\t\"siteName\": \"沈阳市（子站）\",\n\t\"subOrderId\": 450336553706083851,\n\t\"ts\": 1608885401000,\n\t\"tss\": \"2020-12-25 16:36:41\",\n\t\"userId\": 118979605,\n\t\"warehouseId\": 990\n}"
 
 	var raw = new(OrderInfo)
 	if err := json.Unmarshal([]byte(params), &raw); err != nil {
 		common.ErrorLogger.Fatal(err)
 	}
+
+	var data map[string]interface{}
+	if err := json.Unmarshal([]byte(params), &data); err != nil {
+		common.ErrorLogger.Fatal(err)
+	}
 	SiteId := "20"
-	//通过子站id拼成子站场景key，然后拿着key从redis获取这个场景要过的的规则集合
+	var ruleList []string
 	var key string
 	key = common.RedisKey + SiteId
-	// 先从本地缓存获取，获取不到从redis中获取
-	ruleList := common.GetRules(key)
-	if len(ruleList) == 0 {
-		rules := redis.RedisGet(key)
-		if rules == "" {
-			//找默认的规则
-			key = common.RedisKey + strconv.FormatInt(0, 10)
+	rules := redis.RedisGet(key)
+	if rules == "" {
+		//找默认的规则
+		key = common.RedisKey + strconv.FormatInt(0, 10)
+		ruleList = common.GetRules(key)
+		if len(ruleList) == 0 {
 			rules = redis.RedisGet(key)
 		}
-		if rules == "" {
-			common.ErrorLogger.Info("redis里面缓存的规则集不能为空")
-			return
-		}
-		common.SetRule(key, rules)
+	}
+	common.SetRule(key, rules)
+
+	if len(ruleList) == 0 {
+		ruleList = common.GetRules(key)
+	}
+	if len(ruleList) == 0 {
+		//monitor.SendDingDingMessage(" 【redis里面key: RISK_FUMAOLI_SCENE_" + SiteId + " 和 默认 RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10) + " 对应缓存的规则集不能为空，请确认数据是否异常。】")
+		return
 	}
 
 	i, _ := raw.SubOrderId.Int64()
 	ctx = context.WithValue(ctx, "TraceId", int(i))
 
-	hit, _ := handlers.DetectHandler(common.GetRules(key), ctx)
+	hit, _ := handlers.DetectHandler(ruleList, data, ctx)
 	//解析结果
 	Errno := hit.Errno
 	if Errno == 0 {
