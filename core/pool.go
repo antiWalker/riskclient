@@ -153,8 +153,12 @@ func (redisEngine RedisEngine) query(job models.Job) JobResult {
 		redisResult := redis.RedisHGet(finalKey, field)
 		//get key value from redis
 		common.InfoLogger.Infof("finalKey : %v ,filed : %v , result : %v ", finalKey, field, redisResult)
+		// 防止flink 统计消费速度慢，导致获取不到数据
+		if redisResult == "" {
+			return JobResult{job.JobId, 0, []string{}, errors.New("redis 取不到数据")}
+		}
 		if err := json.Unmarshal([]byte(redisResult), &tempJson); err != nil {
-			common.ErrorLogger.Infof("json err : %v", err)
+			common.ErrorLogger.Infof("finalKey : %v ,filed : %v , redisResult : %v, json err : %v", finalKey, field, redisResult, err)
 			return JobResult{job.JobId, 0, []string{}, errors.New("redis 取不到数据")}
 		}
 		return JobResult{job.JobId, tempJson[hkey[2]], []string{finalKey}, nil}
