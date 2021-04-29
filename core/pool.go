@@ -155,14 +155,17 @@ func (redisEngine RedisEngine) query(job models.Job) JobResult {
 		common.InfoLogger.Infof("finalKey : %v ,filed : %v , result : %v ", finalKey, field, redisResult)
 		// 防止flink 统计消费速度慢，导致获取不到数据
 		if redisResult == "" {
-			return JobResult{job.JobId, 0, []string{}, errors.New("redis 取不到数据")}
+			var n int64 = 0
+			return JobResult{job.JobId, n, []string{}, errors.New("redis 取不到数据")}
 		}
 		if err := json.Unmarshal([]byte(redisResult), &tempJson); err != nil {
+			var n int64 = 0
 			common.ErrorLogger.Infof("finalKey : %v ,filed : %v , redisResult : %v, json err : %v", finalKey, field, redisResult, err)
-			return JobResult{job.JobId, 0, []string{}, errors.New("redis 取不到数据")}
+			return JobResult{job.JobId, n, []string{}, errors.New("redis 取不到数据")}
 		}
 		return JobResult{job.JobId, tempJson[hkey[2]], []string{finalKey}, nil}
 	} else {
-		return JobResult{job.JobId, 0, []string{}, errors.New("select type not support")}
+		var n int64 = 0
+		return JobResult{job.JobId, n, []string{}, errors.New("select type not support")}
 	}
 }
