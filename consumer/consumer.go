@@ -48,23 +48,42 @@ func doConsumer(params string) error {
 	if err := json.Unmarshal([]byte(params), &raw); err != nil {
 		common.ErrorLogger.Infof("json format error , %v ", err)
 	}
+
+	var data map[string]interface{}
+	if err := json.Unmarshal([]byte(params), &data); err != nil {
+		common.ErrorLogger.Fatal(err)
+	}
+
 	SiteId := raw.SiteId
 	//SiteId := 10030
 	//通过子站id拼成子站场景key，然后拿着key从redis获取这个场景要过的的规则集合
-	key := "RISK_FUMAOLI_SCENE_" + strconv.Itoa(SiteId)
+	var ruleList []string
+	var key string
+	key = common.RedisKey + strconv.Itoa(SiteId)
 	rules := redis.RedisGet(key)
 	if rules == "" {
 		//找默认的规则
-		rules = redis.RedisGet("RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10))
+		key = common.RedisKey + strconv.FormatInt(0, 10)
+		ruleList = common.GetRules(key)
+		if len(ruleList) == 0 {
+			common.WarnLogger.Info("从redis中取规则集")
+			rules = redis.RedisGet(key)
+		}
 	}
-	if rules == "" {
+	common.SetRule(key, rules)
+
+	if len(ruleList) == 0 {
+		ruleList = common.GetRules(key)
+	}
+	if len(ruleList) == 0 {
 		monitor.SendDingDingMessage(" 【redis里面key: RISK_FUMAOLI_SCENE_" + strconv.Itoa(SiteId) + " 和 默认 RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10) + " 对应缓存的规则集不能为空，请确认数据是否异常。】")
 		return nil
 	}
+
 	ctx, _ := context.WithCancel(context.Background())
 
 	ctx = context.WithValue(ctx, "TraceId", raw.SubOrderId)
-	hit, _ := handlers.DetectHandler(params, rules, ctx)
+	hit, _ := handlers.DetectHandler(ruleList, data, ctx)
 	//解析结果
 	Errno := hit.Errno
 	if Errno == 0 {
@@ -74,7 +93,7 @@ func doConsumer(params string) error {
 		//命中后再做log到db的操作。
 		if IsHit == true {
 			common.HitLogger.Infof("TraceId : %d , Order_Info : %v , 命中规则列表 :%v ", ctx.Value("TraceId"), raw, HitList)
-			InsertToDb(ctx, params, HitList)
+			InsertToDb(ctx, raw, HitList)
 		}
 	} else {
 		//解析出错钉钉群报警
@@ -83,16 +102,13 @@ func doConsumer(params string) error {
 	return nil
 }
 
-//如果一个订单过多条策略，则可以把这个订单下多个命中的策略批量insert。
-func InsertToDb(ctx context.Context, params string, HitList []handlers.StrategyResult) {
+// InsertToDb 如果一个订单过多条策略，则可以把这个订单下多个命中的策略批量insert。
+func InsertToDb(ctx context.Context, order *models.Order, HitList []handlers.StrategyResult) {
 	for _, v := range HitList {
-		//fmt.Println(k, v)
 		ruleRes := v.IsHit
-		//fmt.Println(k, ruleRes)
-		//把命中的策略结果insert到polardb
 		if ruleRes {
 			//fmt.Println(ruleRes)
-			id, err := models.AddNegativeGrossProfitResult(params, v.Name)
+			id, err := models.AddNegativeGrossProfitResult(order, v.Name)
 			common.SQLLogger.Infof("TraceId : %d ,StrategyResult : %v , AddNegativeGrossProfitResult : id : %v , err : %v", ctx.Value("TraceId"), v, id, err)
 		}
 	}

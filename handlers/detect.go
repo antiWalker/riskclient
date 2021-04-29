@@ -6,14 +6,13 @@ import (
 	"bigrisk/core"
 	"bigrisk/monitor"
 	"context"
-	"encoding/json"
 	"gitlaball.nicetuan.net/wangjingnan/golib/cache/redis"
 	"strconv"
 	"sync"
 	"time"
 )
 
-/// 检测参数
+// DetectFormV2  检测参数
 type DetectFormV2 struct {
 	/// @see json encoded `InParams` 参数
 	Params   string `json:"params"`    // 参数
@@ -39,42 +38,25 @@ type StrategyResult struct {
 	HitReason []string `json:"hit_reason"`
 }
 
-/// 风控检测函数
-/// data => false 表示没有风险
-/// data => true  表示有风险
-func DetectHandler(params string, rules string, context context.Context) (resultType, error) {
+// DetectHandler  风控检测函数
+// data => false 表示没有风险
+// data => true  表示有风险
+func DetectHandler(ruleList []string, data map[string]interface{}, context context.Context) (resultType, error) {
 	var TraceId = strconv.Itoa(context.Value("TraceId").(int))
-
-	//fmt.Println("key not found:", k)
 	start := time.Now().UnixNano()
 
 	if core.BaseTime == "" {
 		core.BaseTime = "real_time"
 	}
 
-	var ruleList []interface{}
-	var data interface{}
-
-	if err := json.Unmarshal([]byte(params), &data); err != nil {
-		return makeResult(errnoParseParamArg, nil), nil
-	}
-
-	if err := json.Unmarshal([]byte(rules), &ruleList); err != nil {
-		return makeResult(errnoParseRulesArg, nil), nil
-	}
 	//解析数组，从redis里面去
 	var listKey []string
 	for _, value := range ruleList {
-		v := value.(string)
-
-		listKey = append(listKey, v)
+		listKey = append(listKey, value)
 	}
 
 	keyValues, _ := redis.RedisMGet(listKey)
 
-	if len(ruleList) == 0 {
-		return makeResult(errnoEmptyRule, nil), nil
-	}
 	detectChannel := make(chan DetectChannel, len(ruleList))
 
 	wg := sync.WaitGroup{}
@@ -85,8 +67,6 @@ func DetectHandler(params string, rules string, context context.Context) (result
 		if ok {
 			ruleBytes = []byte(ruleData)
 		} else {
-			//return makeResult(errnoEmptyRule, nil),nil
-			//return "", haveRisk, reason, errors.New("riskEngine: "+kk+"rule is empty")
 			type rule struct {
 				Ruleindex int `json:"ruleindex"`
 			}
@@ -107,7 +87,7 @@ func DetectHandler(params string, rules string, context context.Context) (result
 			var thisDetectChannel DetectChannel
 
 			// do detect
-			if ruleSign, haveRisk, riskReason, err := control.RiskDetect(ruleBytes, data.(map[string]interface{}), context); err == nil {
+			if ruleSign, haveRisk, riskReason, err := control.RiskDetect(ruleBytes, data, context); err == nil {
 				thisDetectChannel.ruleSign = ruleSign
 				thisDetectChannel.haveRisk = haveRisk
 				thisDetectChannel.riskReason = riskReason
@@ -138,9 +118,6 @@ func DetectHandler(params string, rules string, context context.Context) (result
 		if value.errorInfo != nil {
 			common.ErrorLogger.Info(value.errorInfo)
 			monitor.SendDingDingMessage(" :" + value.errorInfo.Error())
-			//_ = sendResult(w, errnoDetectFailed, value.errorInfo.Error())
-			//return false,value.errorInfo
-			//return makeResult(errnoInvalidDetectParams,nil),nil
 		}
 		tmpStrategyResult := new(StrategyResult)
 		tmpStrategyResult.Name = value.ruleSign
