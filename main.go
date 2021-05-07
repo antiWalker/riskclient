@@ -6,6 +6,7 @@ import (
 	"bigrisk/handlers"
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/astaxie/beego/orm"
 	"gitlaball.nicetuan.net/wangjingnan/golib/cache/redis"
 	"gitlaball.nicetuan.net/wangjingnan/golib/mq/kafka"
@@ -47,7 +48,7 @@ func prod() {
 
 	for i := 0; i < consumerCount; i++ {
 		go doConsume(waitGroup)
-		common.InfoLogger.Info("Consumer goroutine %d is up and running", i)
+		common.InfoLogger.Infof("Consumer goroutine %d is up and running", i)
 	}
 
 	<-consumer.Ready
@@ -151,6 +152,9 @@ func local() {
 
 //如果一个订单过多条策略，则可以把这个订单下多个命中的策略批量insert。
 func insertToDb(params string, HitList []handlers.StrategyResult) {
+
+	ip, _ := common.ExternalIP()
+	fmt.Println(ip, "========")
 	for _, v := range HitList {
 		//fmt.Println(k, v)
 		ruleRes := v.IsHit
