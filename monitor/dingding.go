@@ -8,8 +8,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/astaxie/beego"
 	"gitlaball.nicetuan.net/wangjingnan/golib/cache/redis"
+	"gitlaball.nicetuan.net/wangjingnan/golib/nacos"
 	"net/http"
 	"time"
 )
@@ -22,8 +22,8 @@ func hmacSha256(stringToSign string, secret string) string {
 
 // Sign 获取加密后的url地址
 func Sign() string {
-	secret := beego.AppConfig.String("security")
-	webhook := beego.AppConfig.String("webHook")
+	secret := nacos.GetConfigMap()["dingding.security"]
+	webhook := nacos.GetConfigMap()["dingding.webHook"]
 	timestamp := time.Now().UnixNano() / 1e6
 	stringToSign := fmt.Sprintf("%d\n%s", timestamp, secret)
 	sign := hmacSha256(stringToSign, secret)
@@ -31,7 +31,7 @@ func Sign() string {
 	return url
 }
 
-//发送消息
+// SendDingDingMessage 发送消息
 func SendDingDingMessage(contentData string) bool {
 	if checkLimit() {
 		common.WarnLogger.Info("钉钉消息超过限制，不发送。")
@@ -41,7 +41,7 @@ func SendDingDingMessage(contentData string) bool {
 	atMap["isAtAll"] = "true"
 	atMap["msgtype"] = "text"
 	content, data := make(map[string]string), make(map[string]interface{})
-	content["content"] = beego.AppConfig.String("keyWords") + contentData
+	content["content"] = nacos.GetConfigMap()["dingding.keyWords"] + contentData
 	data["msgtype"] = "text"
 	data["text"] = content
 	data["at"] = atMap
@@ -60,7 +60,7 @@ func SendDingDingMessage(contentData string) bool {
 //check 检查消息发送频率是否超过限制：每个机器人每分钟最多发送20条。如果超过20条，会限流10分钟。
 func checkLimit() bool {
 	//发送前设置一个缓存一分钟的自增数
-	value := redis.RedisIncrEx(beego.AppConfig.String("riskclientId"), 60*time.Second)
+	value := redis.RedisIncrEx(nacos.GetConfigMap()["dingding.riskclientId"], 60*time.Second)
 	if value > 20 {
 		return true
 	}
