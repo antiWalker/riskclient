@@ -4,6 +4,7 @@ import (
 	"bigrisk/common"
 	"bigrisk/consumer"
 	"bigrisk/handlers"
+	"bigrisk/monitor"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -123,7 +124,7 @@ func local() {
 		ruleList = common.GetRules(key)
 	}
 	if len(ruleList) == 0 {
-		//monitor.SendDingDingMessage(" 【redis里面key: RISK_FUMAOLI_SCENE_" + SiteId + " 和 默认 RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10) + " 对应缓存的规则集不能为空，请确认数据是否异常。】")
+		monitor.SendDingDingMessage(" 【redis里面key: RISK_FUMAOLI_SCENE_" + SiteId + " 和 默认 RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10) + " 对应缓存的规则集不能为空，请确认数据是否异常。】")
 		return
 	}
 
