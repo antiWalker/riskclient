@@ -81,7 +81,6 @@ func doConsumer(params string) error {
 	}
 
 	ctx, _ := context.WithCancel(context.Background())
-
 	ctx = context.WithValue(ctx, "TraceId", raw.SubOrderId)
 	hit, _ := handlers.DetectHandler(ruleList, data, ctx)
 	//解析结果
@@ -104,11 +103,12 @@ func doConsumer(params string) error {
 
 // InsertToDb 如果一个订单过多条策略，则可以把这个订单下多个命中的策略批量insert。
 func InsertToDb(ctx context.Context, order *models.Order, HitList []handlers.StrategyResult) {
+	ip, _ := common.ExternalIP()
 	for _, v := range HitList {
 		ruleRes := v.IsHit
 		if ruleRes {
 			//fmt.Println(ruleRes)
-			id, err := models.AddNegativeGrossProfitResult(order, v.Name)
+			id, err := models.AddNegativeGrossProfitResult(order, v.Name, ip.String())
 			common.SQLLogger.Infof("TraceId : %d ,StrategyResult : %v , AddNegativeGrossProfitResult : id : %v , err : %v", ctx.Value("TraceId"), v, id, err)
 		}
 	}

@@ -63,12 +63,11 @@ type Order struct {
 	MerchTypeId      int    `json:"merchTypeId"`
 }
 
-/**
-  params  kafka 收集到的数据
-  ruleId 规则id
-  对比结果 命中 还是未命中
-*/
-func AddNegativeGrossProfitResult(order *Order, ruleId string) (int64, error) {
+// AddNegativeGrossProfitResult
+//  params  kafka 收集到的数据
+//  ruleId 规则id
+//  对比结果 命中 还是未命中
+func AddNegativeGrossProfitResult(order *Order, ruleId, ip string) (int64, error) {
 	var o = orm.NewOrm()
 	negativeGrossProfitResult := NegativeGrossProfitResult{}
 	negativeGrossProfitResult.NegativeType = 0
@@ -85,7 +84,7 @@ func AddNegativeGrossProfitResult(order *Order, ruleId string) (int64, error) {
 	negativeGrossProfitResult.CouponMoney = order.CouponMoney
 	negativeGrossProfitResult.MerchTypeId = order.MerchTypeId
 	negativeGrossProfitResult.GrouponId = order.GrouponId
-
+	negativeGrossProfitResult.RuleResult = ip
 	if order.Ts > 0 && len(strconv.FormatInt(order.Ts, 10)) == 13 {
 		negativeGrossProfitResult.OrderTime = order.Ts / 1000
 	} else {
@@ -98,7 +97,7 @@ func AddNegativeGrossProfitResult(order *Order, ruleId string) (int64, error) {
 	o.Using("default")
 	id, err := o.Insert(&negativeGrossProfitResult)
 	if err != nil {
-		common.ErrorLogger.Infof(" %d insert fail ! insert err : ", id, err)
+		common.ErrorLogger.Infof(" %v insert fail ! insert err : %v", id, err)
 		return id, err
 	}
 	return id, err
