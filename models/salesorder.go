@@ -3,7 +3,7 @@ package models
 import (
 	"errors"
 	"github.com/astaxie/beego/orm"
-	_ "gitlaball.nicetuan.net/wangjingnan/golib/register-golang/db/orm"
+	_ "gitlaball.nicetuan.net/wangjingnan/golib/db/orm"
 	"reflect"
 )
 
@@ -101,14 +101,14 @@ func (salesOrder SalesOrder) SpitSum(job Job) (float64, []string, error) {
 func SplitCountInnerSalesOrder(job Job, countFunc CountFunc, tableRow interface{}) (int64, []string, error) {
 	var id int64 = 0
 	/*
-	selectStruct := strings.Split(job.Select, "::")
-	if len(selectStruct) != 2 {
-		return 0, nil, errors.New("select format error")
-	}
+		selectStruct := strings.Split(job.Select, "::")
+		if len(selectStruct) != 2 {
+			return 0, nil, errors.New("select format error")
+		}
 
-	var columnName = selectStruct[1]
+		var columnName = selectStruct[1]
 	*/
-	columnName :=job.Select[7 : ]
+	columnName := job.Select[7:]
 	//转化为首字母大写
 	name := getColName(columnName)
 
@@ -160,14 +160,14 @@ func SplitCountInnerSalesOrder(job Job, countFunc CountFunc, tableRow interface{
 func SpitSumInnerSalesOrder(job Job, sumFunc SumFunc, tableRow interface{}) (float64, []string, error) {
 	var id int64 = 0
 	/*
-	selectStruct := strings.Split(job.Select, "::")
-	if len(selectStruct) != 2 {
-		return 0, nil, errors.New("select format error")
-	}
+		selectStruct := strings.Split(job.Select, "::")
+		if len(selectStruct) != 2 {
+			return 0, nil, errors.New("select format error")
+		}
 
-	var columnName = selectStruct[1]
+		var columnName = selectStruct[1]
 	*/
-	columnName :=job.Select[5 : ]
+	columnName := job.Select[5:]
 	//转化为首字母大写
 	name := getColName(columnName)
 

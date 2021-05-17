@@ -1,7 +1,7 @@
 package consumer
 
 import (
-	"bigrisk/common"
+	"bigrisk/global"
 	"bigrisk/handlers"
 	"bigrisk/models"
 	"bigrisk/monitor"
@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"github.com/Shopify/sarama"
 	"gitlaball.nicetuan.net/wangjingnan/golib/cache/redis"
+	"gitlaball.nicetuan.net/wangjingnan/golib/common"
 	"strconv"
 )
 
@@ -51,7 +52,7 @@ func doConsumer(params string) error {
 
 	var data map[string]interface{}
 	if err := json.Unmarshal([]byte(params), &data); err != nil {
-		common.ErrorLogger.Fatal(err)
+		common.ErrorLogger.Infof("err : %v", err)
 	}
 
 	SiteId := raw.SiteId
@@ -59,21 +60,21 @@ func doConsumer(params string) error {
 	//通过子站id拼成子站场景key，然后拿着key从redis获取这个场景要过的的规则集合
 	var ruleList []string
 	var key string
-	key = common.RedisKey + strconv.Itoa(SiteId)
+	key = global.RedisKey + strconv.Itoa(SiteId)
 	rules := redis.RedisGet(key)
 	if rules == "" {
 		//找默认的规则
-		key = common.RedisKey + strconv.FormatInt(0, 10)
-		ruleList = common.GetRules(key)
+		key = global.RedisKey + strconv.FormatInt(0, 10)
+		ruleList = global.GetRules(key)
 		if len(ruleList) == 0 {
 			common.WarnLogger.Info("从redis中取规则集")
 			rules = redis.RedisGet(key)
 		}
 	}
-	common.SetRule(key, rules)
+	global.SetRule(key, rules)
 
 	if len(ruleList) == 0 {
-		ruleList = common.GetRules(key)
+		ruleList = global.GetRules(key)
 	}
 	if len(ruleList) == 0 {
 		monitor.SendDingDingMessage(" 【redis里面key: RISK_FUMAOLI_SCENE_" + strconv.Itoa(SiteId) + " 和 默认 RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10) + " 对应缓存的规则集不能为空，请确认数据是否异常。】")
@@ -91,7 +92,7 @@ func doConsumer(params string) error {
 		HitList := HRes.StrategyList
 		//命中后再做log到db的操作。
 		if IsHit == true {
-			common.HitLogger.Infof("TraceId : %d , Order_Info : %v , 命中规则列表 :%v ", ctx.Value("TraceId"), raw, HitList)
+			common.WarnLogger.Infof("TraceId : %d , Order_Info : %v , 命中规则列表 :%v ", ctx.Value("TraceId"), raw, HitList)
 			InsertToDb(ctx, raw, HitList)
 		}
 	} else {
@@ -109,7 +110,7 @@ func InsertToDb(ctx context.Context, order *models.Order, HitList []handlers.Str
 		if ruleRes {
 			//fmt.Println(ruleRes)
 			id, err := models.AddNegativeGrossProfitResult(order, v.Name, ip.String())
-			common.SQLLogger.Infof("TraceId : %d ,StrategyResult : %v , AddNegativeGrossProfitResult : id : %v , err : %v", ctx.Value("TraceId"), v, id, err)
+			common.WarnLogger.Infof("TraceId : %d ,StrategyResult : %v , AddNegativeGrossProfitResult : id : %v , err : %v", ctx.Value("TraceId"), v, id, err)
 		}
 	}
 }

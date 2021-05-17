@@ -1,9 +1,9 @@
 package models
 
 import (
-	"bigrisk/common"
 	"github.com/astaxie/beego/orm"
-	_ "gitlaball.nicetuan.net/wangjingnan/golib/register-golang/db/orm"
+	"gitlaball.nicetuan.net/wangjingnan/golib/common"
+	_ "gitlaball.nicetuan.net/wangjingnan/golib/db/orm"
 	"strconv"
 	"time"
 )
