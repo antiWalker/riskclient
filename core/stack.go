@@ -1,7 +1,6 @@
 package core
 
 import (
-	"bigrisk/common"
 	"errors"
 )
 
@@ -46,8 +45,6 @@ func (stack *Stack) Top() (interface{}, error) {
 	if len(*stack) == 0 {
 		return nil, errors.New("Get top of Stack Out of index, len is 0")
 	}
-
-	common.InfoLogger.Info("Top Of Stack", (*stack)[len(*stack)-1])
 
 	return (*stack)[len(*stack)-1], nil
 }

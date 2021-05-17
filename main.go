@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bigrisk/common"
 	"bigrisk/consumer"
+	"bigrisk/global"
 	"bigrisk/handlers"
 	"bigrisk/monitor"
 	"context"
@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/astaxie/beego/orm"
 	"gitlaball.nicetuan.net/wangjingnan/golib/cache/redis"
+	"gitlaball.nicetuan.net/wangjingnan/golib/common"
 	"gitlaball.nicetuan.net/wangjingnan/golib/mq/kafka"
 	"log"
 	"net/http"
@@ -32,7 +33,7 @@ func prod() {
 	doConsume := func(wg *sync.WaitGroup) {
 		defer wg.Done()
 		for {
-			err := consumerGroup.Consume(ctx, kafka.GetTopics(), &consumer)
+			err := consumerGroup.Consume(ctx, kafka.GetConsumerTopics(), &consumer)
 			if err != nil {
 				common.ErrorLogger.Fatal("Error from consumer: %v", err)
 			}
@@ -108,20 +109,20 @@ func local() {
 	SiteId := "20"
 	var ruleList []string
 	var key string
-	key = common.RedisKey + SiteId
+	key = global.RedisKey + SiteId
 	rules := redis.RedisGet(key)
 	if rules == "" {
 		//找默认的规则
-		key = common.RedisKey + strconv.FormatInt(0, 10)
-		ruleList = common.GetRules(key)
+		key = global.RedisKey + strconv.FormatInt(0, 10)
+		ruleList = global.GetRules(key)
 		if len(ruleList) == 0 {
 			rules = redis.RedisGet(key)
 		}
 	}
-	common.SetRule(key, rules)
+	global.SetRule(key, rules)
 
 	if len(ruleList) == 0 {
-		ruleList = common.GetRules(key)
+		ruleList = global.GetRules(key)
 	}
 	if len(ruleList) == 0 {
 		monitor.SendDingDingMessage(" 【redis里面key: RISK_FUMAOLI_SCENE_" + SiteId + " 和 默认 RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10) + " 对应缓存的规则集不能为空，请确认数据是否异常。】")
@@ -140,7 +141,7 @@ func local() {
 		HitList := HRes.StrategyList
 		//命中后再做log到db的操作。
 		if IsHit == true {
-			common.HitLogger.Infof("TraceId : %d ,UserId : %v , 命中规则列表 :%v , ", ctx.Value("TraceId"), raw.UserId, HitList)
+			common.WarnLogger.Infof("TraceId : %d ,UserId : %v , 命中规则列表 :%v , ", ctx.Value("TraceId"), raw.UserId, HitList)
 			insertToDb(params, HitList)
 		} else {
 			common.InfoLogger.Info("这个订单未命中任何策略。")

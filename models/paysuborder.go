@@ -1,11 +1,11 @@
 package models
 
 import (
-	"bigrisk/common"
 	"bytes"
 	"errors"
 	"github.com/astaxie/beego/orm"
-	_ "gitlaball.nicetuan.net/wangjingnan/golib/register-golang/db/orm"
+	"gitlaball.nicetuan.net/wangjingnan/golib/common"
+	_ "gitlaball.nicetuan.net/wangjingnan/golib/db/orm"
 	"reflect"
 	"strings"
 )
