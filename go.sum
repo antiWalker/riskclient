@@ -324,8 +324,8 @@ github.com/xdg/scram v0.0.0-20180814205039-7eeb5667e42c/go.mod h1:lB8K/P019DLNhe
 github.com/xdg/stringprep v1.0.0/go.mod h1:Jhud4/sHMO4oL310DaZAKk9ZaJ08SJfe+sJh0HrGL1Y=
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
 github.com/yuin/gopher-lua v0.0.0-20171031051903-609c9cd26973/go.mod h1:aEV29XrmTYFr3CiRxZeGHpkvbwq+prZduBqMaascyCU=
-gitlaball.nicetuan.net/wangjingnan/golib v1.3.0 h1:cJeCXj9DMyYb8oYB+Yy4DYpTTwIrzYyoXBAs1wWW5Zo=
-gitlaball.nicetuan.net/wangjingnan/golib v1.3.0/go.mod h1:i+U7tU73e2az3u+2n8XwhtUbiGMfwpQnQdvXzz81G+U=
+gitlaball.nicetuan.net/wangjingnan/golib v1.3.2 h1:cCKq6Bjr0tQT52DpDwdzUGyQRu9Zk49kuHyjXVxZz70=
+gitlaball.nicetuan.net/wangjingnan/golib v1.3.2/go.mod h1:i+U7tU73e2az3u+2n8XwhtUbiGMfwpQnQdvXzz81G+U=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
 go.opencensus.io v0.22.0/go.mod h1:+kGneAE2xo2IficOXnaByMWTGM9T73dGwxeWcUqIpI8=
