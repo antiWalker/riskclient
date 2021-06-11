@@ -1,6 +1,12 @@
-FROM docker.test.com/paas/centos:7.5.1804
+FROM golang:alpine
 
+MAINTAINER donghongchen docker riskclient "donghongchen@shihuituan.com"
 
-ADD ./ /srv/riskengine/
+##将代码复制到容器中
+COPY ./riskclient .
+## 将我们的代码编译成二进制可以执行的文件，可执行文件名为 riskclient
+COPY ./conf  .
 
-ENTRYPOINT  /srv/riskengine/riskengine
+EXPOSE 3351
+
+CMD ["./riskclient"]
