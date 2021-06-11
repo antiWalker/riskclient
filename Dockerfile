@@ -1,4 +1,4 @@
-FROM golang:alpine
+FROM scratch
 
 MAINTAINER donghongchen docker riskclient "donghongchen@shihuituan.com"
 
