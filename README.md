@@ -1,4 +1,4 @@
-## 镜像: scratch
+## 镜像: alpine
 ```dockerfile
 FROM alpine
 MAINTAINER donghongchen docker riskclient "donghongchen@shihuituan.com"
@@ -33,7 +33,7 @@ docker push 10.0.44.57:5000/risk/riskclient:v1
 docker pull 10.0.44.57:5000/risk/riskclient:v1
 ```
 
-启动
+## 启动
 ```docker
 docker run -itd --name riskclient --restart always  -p 3353:3351  -v /data/riskclient/conf:/conf 10.0.44.57:5000/risk/riskclient:v1
 ```
