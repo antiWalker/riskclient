@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: riskclient
+  labels:
+    app: riskclient
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: riskclient
+      labels:
+        app: riskclient
+    spec:
+      containers:
+        - name: riskclient
+          image: 10.0.44.57:5000/risk/riskclient:v4
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3351
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: riskclient
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: riskclient-service
+spec:
+  selector:
+    app: riskclient
+  ports:
+    - port: 3355
+  type: NodePort
