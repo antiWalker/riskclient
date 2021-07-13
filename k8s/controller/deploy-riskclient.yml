@@ -18,11 +18,17 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3351
+          volumeMounts:
+            - mountPath: /conf/
+              name: nacosproperties
       restartPolicy: Always
+      volumes:
+        - name: nacosproperties
+          configMap:
+            name: riskconf
   selector:
     matchLabels:
       app: riskclient
-
 ---
 apiVersion: v1
 kind: Service
