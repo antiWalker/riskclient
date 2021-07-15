@@ -12,6 +12,8 @@ spec:
       labels:
         app: riskclient
     spec:
+      nodeSelector:
+        riskclient: riskclient
       containers:
         - name: riskclient
           image: 10.0.44.57:5000/risk/riskclient:v4
