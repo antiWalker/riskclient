@@ -27,7 +27,7 @@ spec:
       volumes:
         - name: nacosproperties
           configMap:
-            name: riskconf
+            name: riskclientconf
   selector:
     matchLabels:
       app: riskclient
