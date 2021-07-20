@@ -21,6 +21,6 @@ test:
 deploy:
   stage: deploy
   script:
-    - echo $CI_COMMIT_REF_NAME
+    - docker build --rm -t 10.0.44.57:5000/risk/riskclient:$CI_COMMIT_REF_NAME .
   only:
     - tags
