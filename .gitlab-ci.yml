@@ -3,7 +3,6 @@ stages:
 build:
   stage: build
   script:
-    - cd riskclient
     - make
   only:
     - master
