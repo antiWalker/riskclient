@@ -23,7 +23,6 @@ test:
   only:
     - tags
 lint:
-  image: golangci/golangci-lint:v1.41-alpine
   stage: lint
   allow_failure: true
   script:
