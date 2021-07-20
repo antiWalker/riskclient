@@ -4,6 +4,6 @@ build:
   stage: build
   script:
     - cd riskclient
-    - sh build.sh
+    - make
   only:
     - master
