@@ -9,4 +9,4 @@ build:
   script:
     - make
   only:
-    - master
+    - tags
