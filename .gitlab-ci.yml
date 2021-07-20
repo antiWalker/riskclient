@@ -4,9 +4,23 @@ before_script:
   - go mod tidy
 stages:
   - build
+  - test
+  - deploy
 build:
   stage: build
   script:
     - make
+  only:
+    - tags
+test:
+  stage: test
+  script:
+    - echo "success"
+  only:
+    - tags
+deploy:
+  stage: deploy
+  script:
+    - echo "success"
   only:
     - tags
