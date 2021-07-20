@@ -1,3 +1,5 @@
+before_script:
+  - go mod tidy
 stages:
   - build
 build:
