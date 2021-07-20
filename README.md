@@ -1,4 +1,4 @@
-## 镜像: alpine
+## 镜像 : alpine
 ```dockerfile
 FROM alpine
 MAINTAINER donghongchen docker riskclient "donghongchen@shihuituan.com"
