@@ -1,4 +1,6 @@
 before_script:
+  - go env -w GOPROXY=https://mirrors.aliyun.com/goproxy/,direct
+  - go env -w GO111MODULE=on
   - go mod tidy
 stages:
   - build
