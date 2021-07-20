@@ -15,12 +15,12 @@ build:
 test:
   stage: test
   script:
-    - echo "success"
+    - echo $CI_COMMIT_REF_NAME
   only:
     - tags
 deploy:
   stage: deploy
   script:
-    - echo "success"
+    - echo $CI_COMMIT_REF_NAME
   only:
     - tags
