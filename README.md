@@ -2,7 +2,7 @@
 ```dockerfile
 FROM alpine
 MAINTAINER donghongchen docker riskclient "donghongchen@shihuituan.com"
-### 安装需要的软件，解决时区问题
+### 安装需要的软件，解决时区问题  
 RUN apk --update add tzdata && \
     cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone && \
