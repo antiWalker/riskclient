@@ -1,0 +1,42 @@
+before_script:
+  - echo "before_script"
+  - git version
+  - go env -w GOPROXY=https://goproxy.cn,direct
+  - go env -w GO111MODULE=on
+stages:
+  - build
+  - test
+  - lint
+  - docker-deploy
+build:
+  stage: build
+  script:
+    - go mod tidy
+    - make
+  only:
+    - tags
+    - branches
+test:
+  stage: test
+  script:
+    - echo $CI_COMMIT_REF_NAME
+  only:
+    - tags
+    - branches
+lint:
+  stage: lint
+  allow_failure: true
+  script:
+    - golangci-lint --version
+    - golangci-lint run -v
+  only:
+    - tags
+    - branches
+docker-deploy:
+  stage: docker-deploy
+  script:
+    - make
+    - docker build --rm -t 10.0.44.57:5000/risk/riskclient:$CI_COMMIT_REF_NAME .
+    - docker push 10.0.44.57:5000/risk/riskclient:$CI_COMMIT_REF_NAME
+  only:
+    - tags

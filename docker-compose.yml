@@ -1,0 +1,17 @@
+version: "3"
+services:
+  riskclient:
+    container_name: riskclient
+    image: 10.0.44.57:5000/risk/riskclient:v4
+    restart: always
+    environment:
+    - SET_CONTAINER_TIMEZONE=true
+    - CONTAINER_TIMEZONE=Asia/Shanghai
+    volumes:
+    - /data/riskclient/conf:/conf
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "3g"
+    ports:
+    - 3353:3351

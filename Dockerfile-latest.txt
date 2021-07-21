@@ -1,0 +1,21 @@
+# 基础镜像
+FROM golang:latest
+# 维护者
+MAINTAINER donghongchen "donghongchen@shihuituan.com"
+
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+    echo 'Asia/Shanghai' >/etc/timezone
+ENV GO111MODULE=on \
+    CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=amd64 \
+	GOPROXY="https://goproxy.cn,direct"
+WORKDIR $GOPATH/src/sht/riskclient
+# 拷贝当前目录代码到镜像
+COPY . $GOPATH/src/sht/riskclient
+# 制作镜像
+RUN go build .
+# 暴露端口
+EXPOSE 3351
+#程序入口
+CMD ["./riskclient"]

@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/astaxie/beego/orm"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gitlaball.nicetuan.net/wangjingnan/golib/cache/redis"
 	"gitlaball.nicetuan.net/wangjingnan/golib/common"
 	"gitlaball.nicetuan.net/wangjingnan/golib/mq/kafka"
@@ -77,6 +78,14 @@ func prod() {
 func main() {
 	orm.Debug = true
 	go func() {
+		//提供给负载均衡探活
+		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte("ok"))
+
+		})
+
+		//prometheus
+		http.Handle("/metrics", promhttp.Handler())
 		log.Println(http.ListenAndServe("0.0.0.0:3351", nil))
 	}()
 	//local()

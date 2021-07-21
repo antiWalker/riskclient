@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: riskclient
+  labels:
+    app: riskclient
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: riskclient
+      labels:
+        app: riskclient
+    spec:
+      nodeSelector:
+        riskclient: riskclient
+      containers:
+        - name: riskclient
+          image: 10.0.44.57:5000/risk/riskclient:v1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3351
+          volumeMounts:
+            - mountPath: /conf/
+              name: nacosproperties
+      restartPolicy: Always
+      volumes:
+        - name: nacosproperties
+          configMap:
+            name: riskclientconf
+  selector:
+    matchLabels:
+      app: riskclient
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: riskclient-service
+spec:
+  selector:
+    app: riskclient
+  ports:
+    - port: 3355
+  type: NodePort

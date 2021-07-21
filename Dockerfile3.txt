@@ -1,0 +1,34 @@
+FROM golang:alpine
+
+MAINTAINER donghongchen docker riskclent "donghongchen@shihuituan.com"
+
+#RUN echo "http://mirrors.aliyun.com/alpine/latest-stable/main/" > /etc/apk/repositories && \
+#    echo "http://mirrors.aliyun.com/alpine/latest-stable/community/" >> /etc/apk/repositories
+## 安装需要的软件，解决时区问题
+#RUN apk --update add curl bash tzdata && \ rm -rf /var/cache/apk/*
+##修改镜像为东八区时间
+#ENV TZ Asia/Shanghai
+# 为我们的镜像设置必要的环境变量
+ENV GO111MODULE=on \
+    CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=amd64 \
+	GOPROXY="https://goproxy.cn,direct"
+
+RUN mkdir -p  /home/src/riskclient
+RUN mkdir -p  /usr/local/src/risk
+# 移动到工作目录：/usr/local/src/recommend 这个目录 是你项目代码 放在linux上
+WORKDIR /home/src/riskclient
+##将代码复制到容器中
+COPY . .
+## 将我们的代码编译成二进制可以执行的文件，可执行文件名为 riskclient
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o riskclient
+
+#移动到工作目录
+WORKDIR /usr/local/src/risk
+
+RUN cp home/src/riskclient/riskclient .
+RUN cp -r /home/src/riskclient/conf .
+EXPOSE 3351
+
+CMD ["/usr/local/src/risk/riskclient"]
