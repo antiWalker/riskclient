@@ -2,7 +2,7 @@ package global
 
 import (
 	"encoding/json"
-	"gitlaball.nicetuan.net/wangjingnan/golib/common"
+	"github.com/antiWalker/golib/common"
 )
 
 var RedisKey = "RISK_FUMAOLI_SCENE_"

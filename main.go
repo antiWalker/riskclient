@@ -4,15 +4,14 @@ import (
 	"bigrisk/consumer"
 	"bigrisk/global"
 	"bigrisk/handlers"
-	"bigrisk/monitor"
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/antiWalker/golib/cache/redis"
+	"github.com/antiWalker/golib/common"
+	"github.com/antiWalker/golib/mq/kafka"
 	"github.com/astaxie/beego/orm"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"gitlaball.nicetuan.net/wangjingnan/golib/cache/redis"
-	"gitlaball.nicetuan.net/wangjingnan/golib/common"
-	"gitlaball.nicetuan.net/wangjingnan/golib/mq/kafka"
 	"log"
 	"net/http"
 	_ "net/http/pprof"
@@ -88,8 +87,8 @@ func main() {
 		http.Handle("/metrics", promhttp.Handler())
 		log.Println(http.ListenAndServe("0.0.0.0:3351", nil))
 	}()
-	//local()
-	prod()
+	local()
+	//prod()
 }
 
 func local() {
@@ -134,7 +133,8 @@ func local() {
 		ruleList = global.GetRules(key)
 	}
 	if len(ruleList) == 0 {
-		monitor.SendDingDingMessage(" 【redis里面key: RISK_FUMAOLI_SCENE_" + SiteId + " 和 默认 RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10) + " 对应缓存的规则集不能为空，请确认数据是否异常。】")
+		common.InfoLogger.Info("对应缓存的规则集不能为空，请确认数据是否异常。")
+		//monitor.SendDingDingMessage(" 【redis里面key: RISK_FUMAOLI_SCENE_" + SiteId + " 和 默认 RISK_FUMAOLI_SCENE_" + strconv.FormatInt(0, 10) + " 对应缓存的规则集不能为空，请确认数据是否异常。】")
 		return
 	}
 

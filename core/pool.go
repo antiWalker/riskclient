@@ -4,8 +4,8 @@ import (
 	"bigrisk/models"
 	"encoding/json"
 	"errors"
-	"gitlaball.nicetuan.net/wangjingnan/golib/cache/redis"
-	"gitlaball.nicetuan.net/wangjingnan/golib/common"
+	"github.com/antiWalker/golib/cache/redis"
+	"github.com/antiWalker/golib/common"
 	"strconv"
 	"strings"
 )

@@ -15,7 +15,7 @@ pipeline:
     image: docker.test.com/paas/golang:1.11
     # WTF 必须有软连接 不想依赖环境变量
     commands:
-      - ln -s /go/src/gitlaball.nicetuan.net/wangjingnan/golib/msales/riskengine /usr/local/go/src/riskengine
+      - ln -s /go/src/github.com/antiWalker/golib/msales/riskengine /usr/local/go/src/riskengine
       - go build .
     network_mode: host
     auth_config:

@@ -2,8 +2,8 @@ package models
 
 import (
 	"github.com/astaxie/beego/orm"
-	"gitlaball.nicetuan.net/wangjingnan/golib/common"
-	_ "gitlaball.nicetuan.net/wangjingnan/golib/db/orm"
+	"github.com/antiWalker/golib/common"
+	_ "github.com/antiWalker/golib/db/orm"
 	"strconv"
 	"time"
 )

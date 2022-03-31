@@ -3,7 +3,7 @@ package models
 import (
 	"errors"
 	"github.com/astaxie/beego/orm"
-	_ "gitlaball.nicetuan.net/wangjingnan/golib/db/orm"
+	_ "github.com/antiWalker/golib/db/orm"
 	"reflect"
 )
 

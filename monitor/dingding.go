@@ -7,9 +7,9 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"gitlaball.nicetuan.net/wangjingnan/golib/cache/redis"
-	"gitlaball.nicetuan.net/wangjingnan/golib/common"
-	"gitlaball.nicetuan.net/wangjingnan/golib/nacos"
+	"github.com/antiWalker/golib/cache/redis"
+	"github.com/antiWalker/golib/common"
+	"github.com/antiWalker/golib/nacos"
 	"net/http"
 	"time"
 )

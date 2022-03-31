@@ -8,8 +8,8 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/Shopify/sarama"
-	"gitlaball.nicetuan.net/wangjingnan/golib/cache/redis"
-	"gitlaball.nicetuan.net/wangjingnan/golib/common"
+	"github.com/antiWalker/golib/cache/redis"
+	"github.com/antiWalker/golib/common"
 	"os"
 	"strconv"
 )
