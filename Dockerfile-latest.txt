@@ -1,7 +1,7 @@
 # 基础镜像
 FROM golang:latest
 # 维护者
-MAINTAINER donghongchen "donghongchen@shihuituan.com"
+MAINTAINER rd "rd@dev.com"
 
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo 'Asia/Shanghai' >/etc/timezone

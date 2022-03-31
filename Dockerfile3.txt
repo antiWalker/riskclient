@@ -1,6 +1,6 @@
 FROM golang:alpine
 
-MAINTAINER donghongchen docker riskclent "donghongchen@shihuituan.com"
+MAINTAINER rd docker riskclent "rd@dev.com"
 
 #RUN echo "http://mirrors.aliyun.com/alpine/latest-stable/main/" > /etc/apk/repositories && \
 #    echo "http://mirrors.aliyun.com/alpine/latest-stable/community/" >> /etc/apk/repositories
