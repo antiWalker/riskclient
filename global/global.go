@@ -3,6 +3,7 @@ package global
 import (
 	"encoding/json"
 	"github.com/antiWalker/golib/common"
+	"log"
 )
 
 var RedisKey = "RISK_FUMAOLI_SCENE_"
@@ -26,6 +27,7 @@ func SetRule(key, value string) {
 		return
 	}
 	var ruleList []string
+	log.Println("value ss "+value)
 	if err := json.Unmarshal([]byte(value), &ruleList); err != nil {
 		common.ErrorLogger.Error("rule is empty ")
 	}

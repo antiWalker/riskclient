@@ -114,14 +114,16 @@ func local() {
 	if err := json.Unmarshal([]byte(params), &data); err != nil {
 		common.ErrorLogger.Fatal(err)
 	}
-	SiteId := "20"
+	SiteId := "0"
 	var ruleList []string
 	var key string
 	key = global.RedisKey + SiteId
 	rules := redis.RedisGet(key)
+	log.Println(key)
 	if rules == "" {
 		//找默认的规则
 		key = global.RedisKey + strconv.FormatInt(0, 10)
+		log.Println(key)
 		ruleList = global.GetRules(key)
 		if len(ruleList) == 0 {
 			rules = redis.RedisGet(key)
@@ -146,6 +148,7 @@ func local() {
 	Errno := hit.Errno
 	if Errno == 0 {
 		HRes := hit.Data.(*handlers.HitResult)
+		log.Println(HRes)
 		IsHit := HRes.IsHit
 		HitList := HRes.StrategyList
 		//命中后再做log到db的操作。
@@ -165,7 +168,7 @@ func local() {
 func insertToDb(params string, HitList []handlers.StrategyResult) {
 
 	ip, _ := common.ExternalIP()
-	fmt.Println(ip, "========")
+	fmt.Println(ip, "insert to db ")
 	for _, v := range HitList {
 		//fmt.Println(k, v)
 		ruleRes := v.IsHit
