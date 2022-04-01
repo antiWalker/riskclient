@@ -3,9 +3,9 @@ package models
 import (
 	"bytes"
 	"errors"
-	"github.com/astaxie/beego/orm"
 	"github.com/antiWalker/golib/common"
 	_ "github.com/antiWalker/golib/db/orm"
+	"github.com/astaxie/beego/orm"
 	"reflect"
 	"strings"
 )

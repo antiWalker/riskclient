@@ -2,8 +2,8 @@ package models
 
 import (
 	"errors"
-	"github.com/astaxie/beego/orm"
 	_ "github.com/antiWalker/golib/db/orm"
+	"github.com/astaxie/beego/orm"
 	"reflect"
 )
 

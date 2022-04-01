@@ -1,9 +1,9 @@
 package models
 
 import (
-	"github.com/astaxie/beego/orm"
 	"github.com/antiWalker/golib/common"
 	_ "github.com/antiWalker/golib/db/orm"
+	"github.com/astaxie/beego/orm"
 	"strconv"
 	"time"
 )
