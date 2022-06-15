@@ -37,3 +37,4 @@ docker pull 10.0.44.57:5000/risk/riskclient:v1
 ```docker
 docker run -itd --name riskclient --restart always  -p 3353:3351  -v /data/riskclient/conf:/conf 10.0.44.57:5000/risk/riskclient:v1
 ```
+主要是以client方式来消费kafka的订单信息。
